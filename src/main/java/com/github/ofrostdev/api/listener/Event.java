@@ -44,6 +44,32 @@ public final class Event {
     }
 
     @SuppressWarnings("unchecked")
+    public static <E extends org.bukkit.event.Event> void listen(Class<E> eventClass, Consumer<E> callback, boolean keepListener) {
+        if (plugin == null)
+            throw new IllegalStateException("[FrostAPI] Event -> Registre com.github.ofrostdev.api.FrostAPI.enable(Plugin plugin) na main!");
+
+        Bukkit.getPluginManager().registerEvent(
+                eventClass,
+                new Listener() {},
+                org.bukkit.event.EventPriority.NORMAL,
+                (listener, event) -> {
+                    if (eventClass.isInstance(event)) {
+                        callback.accept((E) event);
+
+                        if (!keepListener) {
+                            globalCallbacks.remove(eventClass);
+                        }
+                    }
+                },
+                plugin
+        );
+
+        if (keepListener) {
+            globalCallbacks.put(eventClass, callback);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
     public static <E extends org.bukkit.event.Event> void listen(Class<E> eventClass, Player player, Consumer<E> callback, boolean keepListener) {
         if (plugin == null) throw new IllegalStateException("[FrostAPI] Event -> Registre com.github.ofrostdev.api.FrostAPI.enable(Plugin plugin) na main!");
 
