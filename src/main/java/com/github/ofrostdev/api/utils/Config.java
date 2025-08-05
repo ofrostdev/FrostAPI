@@ -67,12 +67,12 @@ public class Config {
         return this.fileConfiguration;
     }
 
-    public static String getString(FileConfiguration config, String path) {
-        return config.getString(path, "String não encontrada: " + path).replace("&", "§");
+    public String getString(String path) {
+        return getConfig().getString(path, "String não encontrada: " + path).replace("&", "§");
     }
 
-    public static String getString(FileConfiguration config, String path, Object... placeholders) {
-        String string = config.getString(path);
+    public String getString(String path, Object... placeholders) {
+        String string = getConfig().getString(path);
         if (string == null) return "§cString não configurada: " + path;
 
         if (placeholders.length % 2 != 0) return string;
@@ -85,12 +85,12 @@ public class Config {
         return string.replace("&", "§");
     }
 
-    public static int getInt(FileConfiguration config, String path) {
-        return config.getInt(path, -1);
+    public int getInt(String path) {
+        return getConfig().getInt(path, -1);
     }
 
-    public static int getInt(FileConfiguration config, String path, Object... placeholders) {
-        String result = config.getString(path);
+    public int getInt(String path, Object... placeholders) {
+        String result = getConfig().getString(path);
         if (result == null) return -1;
 
         if (placeholders.length % 2 != 0) return Integer.parseInt(result);
@@ -108,12 +108,12 @@ public class Config {
         }
     }
 
-    public static double getDouble(FileConfiguration config, String path) {
-        return config.getDouble(path, -1.0);
+    public double getDouble(String path) {
+        return getConfig().getDouble(path, -1.0);
     }
 
-    public static double getDouble(FileConfiguration config, String path, Object... placeholders) {
-        String raw = config.getString(path);
+    public double getDouble(String path, Object... placeholders) {
+        String raw = getConfig().getString(path);
         if (raw == null) return -1.0;
 
         if (placeholders.length % 2 != 0) return Double.parseDouble(raw);
@@ -131,8 +131,8 @@ public class Config {
         }
     }
 
-    public static List<String> getStringList(FileConfiguration config, String path) {
-        List<String> list = config.getStringList(path);
+    public List<String> getStringList(String path) {
+        List<String> list = getConfig().getStringList(path);
         if (list == null) return java.util.Collections.emptyList();
 
         List<String> result = new java.util.ArrayList<>();
