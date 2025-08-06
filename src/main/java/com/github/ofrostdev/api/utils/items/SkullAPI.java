@@ -1,4 +1,4 @@
-package com.github.ofrostdev.api.utils;
+package com.github.ofrostdev.api.utils.items;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;

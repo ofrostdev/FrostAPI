@@ -1,5 +1,6 @@
 package com.github.ofrostdev.api.utils;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -7,7 +8,7 @@ import org.bukkit.plugin.Plugin;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.util.*;
 
 public class Config {
 
@@ -48,6 +49,8 @@ public class Config {
         this.fileConfiguration = YamlConfiguration.loadConfiguration(this.configFile);
         InputStream defConfigStream = plugin.getResource(this.fileName);
         if (defConfigStream != null) {
+            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
+            fileConfiguration.setDefaults(defConfig);
         }
     }
 
@@ -131,15 +134,94 @@ public class Config {
         }
     }
 
+    public boolean getBoolean(String path) {
+        return getConfig().getBoolean(path, false);
+    }
+
     public List<String> getStringList(String path) {
         List<String> list = getConfig().getStringList(path);
-        if (list == null) return java.util.Collections.emptyList();
+        if (list == null) return Collections.emptyList();
 
-        List<String> result = new java.util.ArrayList<>();
+        List<String> result = new ArrayList<>();
         for (String s : list) {
             result.add(s.replace("&", "§"));
         }
         return result;
     }
 
+    public List<Integer> getIntegerList(String path) {
+        return getConfig().getIntegerList(path);
+    }
+
+    public List<Double> getDoubleList(String path) {
+        return getConfig().getDoubleList(path);
+    }
+
+    public List<Boolean> getBooleanList(String path) {
+        return getConfig().getBooleanList(path);
+    }
+
+    public long getLong(String path) {
+        return getConfig().getLong(path, -1L);
+    }
+
+    public List<Long> getLongList(String path) {
+        return getConfig().getLongList(path);
+    }
+
+    public List<Map<?, ?>> getMapList(String path) {
+        return getConfig().getMapList(path);
+    }
+
+    public ConfigurationSection getConfigurationSection(String path) {
+        return getConfig().getConfigurationSection(path);
+    }
+
+    public Set<String> getKeys(boolean deep) {
+        return getConfig().getKeys(deep);
+    }
+
+    public boolean contains(String path) {
+        return getConfig().contains(path);
+    }
+
+    public Object get(String path) {
+        return getConfig().get(path);
+    }
+
+    public Object getOrDefault(String path, Object def) {
+        return getConfig().get(path, def);
+    }
+
+    public boolean isSet(String path) {
+        return getConfig().isSet(path);
+    }
+
+    public boolean isString(String path) {
+        return getConfig().isString(path);
+    }
+
+    public boolean isInt(String path) {
+        return getConfig().isInt(path);
+    }
+
+    public boolean isDouble(String path) {
+        return getConfig().isDouble(path);
+    }
+
+    public boolean isBoolean(String path) {
+        return getConfig().isBoolean(path);
+    }
+
+    public boolean isLong(String path) {
+        return getConfig().isLong(path);
+    }
+
+    public boolean isList(String path) {
+        return getConfig().isList(path);
+    }
+
+    public boolean isConfigurationSection(String path) {
+        return getConfig().isConfigurationSection(path);
+    }
 }

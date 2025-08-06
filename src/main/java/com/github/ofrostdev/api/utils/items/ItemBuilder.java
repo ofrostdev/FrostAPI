@@ -1,4 +1,4 @@
-package com.github.ofrostdev.api.utils;
+package com.github.ofrostdev.api.utils.items;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
@@ -59,20 +59,20 @@ public class ItemBuilder {
         this.is = new ItemStack(m, quantia);
     }
 
-    public ItemBuilder(Material m, int quantia, byte durabilidade) {
-        this.is = new ItemStack(m, quantia, durabilidade);
+    public ItemBuilder(Material m, int quantia, byte data) {
+        this.is = new ItemStack(m, quantia, data);
     }
 
-    public ItemBuilder(Material m, int quantia, int durabilidade) {
-        this.is = new ItemStack(m, quantia, (short) durabilidade);
+    public ItemBuilder(Material m, int quantia, int data) {
+        this.is = new ItemStack(m, quantia, (short) data);
     }
 
     public ItemBuilder clone() {
         return new ItemBuilder(this.is);
     }
 
-    public ItemBuilder setDurability(short durabilidade) {
-        this.is.setDurability(durabilidade);
+    public ItemBuilder setData(short data) {
+        this.is.setDurability(data);
         return this;
     }
 
@@ -119,6 +119,30 @@ public class ItemBuilder {
             nbtList.add(new NBTTagString(value));
         }
         tag.set(key, nbtList);
+        nmsItem.setTag(tag);
+        this.is = CraftItemStack.asBukkitCopy(nmsItem);
+        return this;
+    }
+
+    public ItemBuilder setNBTInt(String key, int value) {
+        net.minecraft.server.v1_8_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(this.is);
+        if (!nmsItem.hasTag()) {
+            nmsItem.setTag(new NBTTagCompound());
+        }
+        NBTTagCompound tag = nmsItem.getTag();
+        tag.setInt(key, value);
+        nmsItem.setTag(tag);
+        this.is = CraftItemStack.asBukkitCopy(nmsItem);
+        return this;
+    }
+
+    public ItemBuilder setNBTBoolean(String key, boolean value) {
+        net.minecraft.server.v1_8_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(this.is);
+        if (!nmsItem.hasTag()) {
+            nmsItem.setTag(new NBTTagCompound());
+        }
+        NBTTagCompound tag = nmsItem.getTag();
+        tag.setBoolean(key, value);
         nmsItem.setTag(tag);
         this.is = CraftItemStack.asBukkitCopy(nmsItem);
         return this;
