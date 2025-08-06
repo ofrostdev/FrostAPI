@@ -127,7 +127,7 @@ public class SectionBuilder<T> {
             Material material = MATERIAL_ADAPTER.supply(section.get("material"));
             int amount = !section.isSet("amount") ? 1 : section.getInt("amount");
             String displayName = !section.isSet("display-name") ? null : STRING_ADAPTER.supply(section.getString("display-name"));
-            List<String> lore = !section.isSet("lore") ? null : section.getStringList("Lore").stream().map(STRING_ADAPTER::supply).collect(Collectors.toList());
+            List<String> lore = !section.isSet("lore") ? null : section.getStringList("lore").stream().map(STRING_ADAPTER::supply).collect(Collectors.toList());
             Map<Enchantment, Integer> enchants = !section.isSet("enchants") ? null : section.getStringList("enchants").stream().map(string -> string.split(":")).collect(Collectors.toMap(array -> Enchantment.getByName(array[0]), array -> Integer.parseInt(array[1].trim())));
             boolean glow = section.isSet("glow") && section.getBoolean("glow");
             boolean dontstack = section.isSet("dontstack") && section.getBoolean("dontstack");
