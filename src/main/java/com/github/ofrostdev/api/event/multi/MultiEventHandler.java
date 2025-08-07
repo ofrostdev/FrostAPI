@@ -4,6 +4,6 @@ import org.bukkit.event.Event;
 import java.util.List;
 
 public interface MultiEventHandler {
-    List<Class<? extends Event>> getEventTypes();
     void handle(Event event);
+    List<Class<? extends Event>> getEventTypes();
 }

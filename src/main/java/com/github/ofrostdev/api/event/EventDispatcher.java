@@ -22,6 +22,8 @@ public class EventDispatcher implements Listener {
     private static final Map<Class<? extends Event>, List<EventHandler<?>>> handlers = new HashMap<>();
     private static final Set<Class<? extends Event>> registeredEvents = new HashSet<>();
 
+    private static final List<MultiEventHandler> multiHandlers = new ArrayList<>();
+
     private static Plugin plugin;
 
     public static void init(Plugin plugin) {
@@ -49,6 +51,12 @@ public class EventDispatcher implements Listener {
                     (listener, event) -> {
                         if (eventClass.isInstance(event)) {
                             dispatch(event);
+                            // Chamar MultiEventHandlers também
+                            for (MultiEventHandler multiHandler : multiHandlers) {
+                                if (multiHandler.getEventTypes().contains(eventClass)) {
+                                    multiHandler.handle(event);
+                                }
+                            }
                         }
                     },
                     plugin
@@ -60,6 +68,8 @@ public class EventDispatcher implements Listener {
         if (plugin == null) {
             throw new IllegalArgumentException("[FrostAPI] EventDispatcher -> Registre com.github.ofrostdev.api.FrostAPI.enable(Plugin plugin) na main!");
         }
+
+        multiHandlers.add(multiHandler);
 
         for (Class<? extends Event> eventClass : multiHandler.getEventTypes()) {
             validateEventClass(eventClass);
@@ -73,23 +83,15 @@ public class EventDispatcher implements Listener {
                         EventPriority.NORMAL,
                         (listener, event) -> {
                             if (eventClass.isInstance(event)) {
-                                multiHandler.handle(event);
+                                dispatch(event);
+                                for (MultiEventHandler handler : multiHandlers) {
+                                    if (handler.getEventTypes().contains(eventClass)) {
+                                        handler.handle(event);
+                                    }
+                                }
                             }
                         },
                         plugin
-                );
-            } else {
-                Bukkit.getPluginManager().registerEvent(
-                        eventClass,
-                        new Listener() {},
-                        EventPriority.NORMAL,
-                        (listener, event) -> {
-                            if (eventClass.isInstance(event)) {
-                                multiHandler.handle(event);
-                            }
-                        },
-                        plugin,
-                        true
                 );
             }
         }
