@@ -1,4 +1,4 @@
-package com.github.ofrostdev.api.listener;
+package com.github.ofrostdev.api.event;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

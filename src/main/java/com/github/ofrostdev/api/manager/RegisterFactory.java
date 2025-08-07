@@ -19,7 +19,7 @@ public class RegisterFactory {
         RegisterFactory.plugin = plugin;
     }
 
-    public static void to(Listener... listeners) {
+    public static void of(Listener... listeners) {
         if (plugin == null) {
             throw new IllegalArgumentException("[FrostAPI] RegisterFactory -> Registre com.github.ofrostdev.api.FrostAPI.enable(Plugin plugin) na main!");
         }
@@ -28,7 +28,7 @@ public class RegisterFactory {
         }
     }
 
-    public static void to(Command... commands) {
+    public static void of(Command... commands) {
         if (plugin == null) {
             throw new IllegalArgumentException("[FrostAPI] RegisterFactory -> Registre com.github.ofrostdev.api.FrostAPI.enable(Plugin plugin) na main!");
         }

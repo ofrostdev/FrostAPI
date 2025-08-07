@@ -115,7 +115,7 @@ public class SectionBuilder<T> {
             nbts: # %uuid_random%
               - "key:value"
             glow: false
-            dontstack: true
+            dont-stack: true
          */
         @Override
         public ItemStack supply(Object object) {
@@ -130,7 +130,7 @@ public class SectionBuilder<T> {
             List<String> lore = !section.isSet("lore") ? null : section.getStringList("lore").stream().map(STRING_ADAPTER::supply).collect(Collectors.toList());
             Map<Enchantment, Integer> enchants = !section.isSet("enchants") ? null : section.getStringList("enchants").stream().map(string -> string.split(":")).collect(Collectors.toMap(array -> Enchantment.getByName(array[0]), array -> Integer.parseInt(array[1].trim())));
             boolean glow = section.isSet("glow") && section.getBoolean("glow");
-            boolean dontstack = section.isSet("dontstack") && section.getBoolean("dontstack");
+            boolean dontstack = section.isSet("dont-stack") && section.getBoolean("dont-stack");
             short data=0;
 
             if(material == null){
