@@ -32,6 +32,7 @@ shadowJar {
     archiveClassifier.set('')
 
     exclude 'org/spigotmc/*'
+    exclude 'com/henryfabio/*'
 
     minimize()
 }
