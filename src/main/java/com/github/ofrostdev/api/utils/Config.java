@@ -83,7 +83,7 @@ public class Config {
         for (int i = 0; i < placeholders.length; i += 2) {
             String key = String.valueOf(placeholders[i]);
             String value = String.valueOf(placeholders[i + 1]);
-            string = string.replace("{" + key + "}", value);
+            string = string.replace(key, value);
         }
         return string.replace("&", "§");
     }
@@ -101,7 +101,7 @@ public class Config {
         for (int i = 0; i < placeholders.length; i += 2) {
             String key = String.valueOf(placeholders[i]);
             String value = String.valueOf(placeholders[i + 1]);
-            result = result.replace("{" + key + "}", value);
+            result = result.replace(key, value);
         }
 
         try {
@@ -124,7 +124,7 @@ public class Config {
         for (int i = 0; i < placeholders.length; i += 2) {
             String key = String.valueOf(placeholders[i]);
             String value = String.valueOf(placeholders[i + 1]);
-            raw = raw.replace("{" + key + "}", value);
+            raw = raw.replace(key, value);
         }
 
         try {
