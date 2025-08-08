@@ -2,6 +2,7 @@ package com.github.ofrostdev.api.event;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 
@@ -36,10 +37,18 @@ public final class Event {
     }
 
     public static <E extends org.bukkit.event.Event> void handle(Class<E> eventClass, Consumer<E> callback) {
-        handle(eventClass, callback, false);
+        handle(eventClass, callback, false, EventPriority.NORMAL);
     }
 
     public static <E extends org.bukkit.event.Event> void handle(Class<E> eventClass, Consumer<E> callback, boolean keepListener) {
+        handle(eventClass, callback, keepListener, EventPriority.NORMAL);
+    }
+
+    public static <E extends org.bukkit.event.Event> void handle(Class<E> eventClass, Consumer<E> callback, EventPriority priority) {
+        handle(eventClass, callback, false, priority);
+    }
+
+    public static <E extends org.bukkit.event.Event> void handle(Class<E> eventClass, Consumer<E> callback, boolean keepListener, EventPriority priority) {
         if (plugin == null) throw new IllegalStateException("[FrostAPI] Event -> Registre FrostAPI.enable(Plugin plugin) na main!");
 
         globalCallbacks.computeIfAbsent(eventClass, k -> new CopyOnWriteArrayList<>()).add(new CallbackWrapper<>(callback, keepListener));
@@ -49,23 +58,22 @@ public final class Event {
             Bukkit.getPluginManager().registerEvent(
                     eventClass,
                     listener,
-                    org.bukkit.event.EventPriority.NORMAL,
+                    priority,
                     (l, event) -> {
                         if (eventClass.isInstance(event)) {
                             CopyOnWriteArrayList<CallbackWrapper<? extends org.bukkit.event.Event>> callbacks = globalCallbacks.get(eventClass);
-                            if (callbacks != null) {
-                                for (CallbackWrapper<? extends org.bukkit.event.Event> wrapper : new ArrayList<>(callbacks)) {
-                                    try {
-                                        @SuppressWarnings("unchecked")
-                                        CallbackWrapper<E> castedWrapper = (CallbackWrapper<E>) wrapper;
-                                        castedWrapper.consumer.accept(eventClass.cast(event));
-                                        if (!castedWrapper.keepListener) {
-                                            callbacks.remove(wrapper);
-                                        }
-                                    } catch (Exception ex) {
-                                        Bukkit.getLogger().warning("[FrostAPI] Exceção em callback global de evento: " + ex.getMessage());
-                                        ex.printStackTrace();
+                            if (callbacks != null && !callbacks.isEmpty()) {
+                                CallbackWrapper<? extends org.bukkit.event.Event> wrapper = callbacks.get(0);
+                                try {
+                                    @SuppressWarnings("unchecked")
+                                    CallbackWrapper<E> castedWrapper = (CallbackWrapper<E>) wrapper;
+                                    castedWrapper.consumer.accept(eventClass.cast(event));
+                                    if (!castedWrapper.keepListener) {
+                                        callbacks.remove(wrapper);
                                     }
+                                } catch (Exception ex) {
+                                    Bukkit.getLogger().warning("[FrostAPI] Exceção em callback global de evento: " + ex.getMessage());
+                                    ex.printStackTrace();
                                 }
                                 if (callbacks.isEmpty()) {
                                     globalCallbacks.remove(eventClass);
@@ -81,10 +89,18 @@ public final class Event {
     }
 
     public static <E extends org.bukkit.event.Event> void handle(Class<E> eventClass, Player player, Consumer<E> callback) {
-        handle(eventClass, player, callback, false);
+        handle(eventClass, player, callback, false, EventPriority.NORMAL);
     }
 
     public static <E extends org.bukkit.event.Event> void handle(Class<E> eventClass, Player player, Consumer<E> callback, boolean keepListener) {
+        handle(eventClass, player, callback, keepListener, EventPriority.NORMAL);
+    }
+
+    public static <E extends org.bukkit.event.Event> void handle(Class<E> eventClass, Player player, Consumer<E> callback, EventPriority priority) {
+        handle(eventClass, player, callback, false, priority);
+    }
+
+    public static <E extends org.bukkit.event.Event> void handle(Class<E> eventClass, Player player, Consumer<E> callback, boolean keepListener, EventPriority priority) {
         if (plugin == null) throw new IllegalStateException("[FrostAPI] Event -> Registre FrostAPI.enable(Plugin plugin) na main!");
 
         UUID uuid = player.getUniqueId();
@@ -99,24 +115,22 @@ public final class Event {
             Bukkit.getPluginManager().registerEvent(
                     eventClass,
                     listener,
-                    org.bukkit.event.EventPriority.NORMAL,
+                    priority,
                     (l, event) -> {
                         if (eventClass.isInstance(event)) {
-                            // Executar callbacks globais também
                             CopyOnWriteArrayList<CallbackWrapper<? extends org.bukkit.event.Event>> global = globalCallbacks.get(eventClass);
-                            if (global != null) {
-                                for (CallbackWrapper<? extends org.bukkit.event.Event> wrapper : new ArrayList<>(global)) {
-                                    try {
-                                        @SuppressWarnings("unchecked")
-                                        CallbackWrapper<E> castedWrapper = (CallbackWrapper<E>) wrapper;
-                                        castedWrapper.consumer.accept(eventClass.cast(event));
-                                        if (!castedWrapper.keepListener) {
-                                            global.remove(wrapper);
-                                        }
-                                    } catch (Exception ex) {
-                                        Bukkit.getLogger().warning("[FrostAPI] Exceção em callback global de evento: " + ex.getMessage());
-                                        ex.printStackTrace();
+                            if (global != null && !global.isEmpty()) {
+                                CallbackWrapper<? extends org.bukkit.event.Event> wrapper = global.get(0);
+                                try {
+                                    @SuppressWarnings("unchecked")
+                                    CallbackWrapper<E> castedWrapper = (CallbackWrapper<E>) wrapper;
+                                    castedWrapper.consumer.accept(eventClass.cast(event));
+                                    if (!castedWrapper.keepListener) {
+                                        global.remove(wrapper);
                                     }
+                                } catch (Exception ex) {
+                                    Bukkit.getLogger().warning("[FrostAPI] Exceção em callback global de evento: " + ex.getMessage());
+                                    ex.printStackTrace();
                                 }
                                 if (global.isEmpty()) {
                                     globalCallbacks.remove(eventClass);
@@ -124,24 +138,22 @@ public final class Event {
                                 }
                             }
 
-                            // Executar callbacks por jogador
                             for (Map.Entry<UUID, Map<Class<? extends org.bukkit.event.Event>, CopyOnWriteArrayList<CallbackWrapper<? extends org.bukkit.event.Event>>>> entry : playerCallbacks.entrySet()) {
                                 Map<Class<? extends org.bukkit.event.Event>, CopyOnWriteArrayList<CallbackWrapper<? extends org.bukkit.event.Event>>> map = entry.getValue();
                                 if (map != null) {
                                     CopyOnWriteArrayList<CallbackWrapper<? extends org.bukkit.event.Event>> list = map.get(eventClass);
-                                    if (list != null) {
-                                        for (CallbackWrapper<? extends org.bukkit.event.Event> wrapper : new ArrayList<>(list)) {
-                                            try {
-                                                @SuppressWarnings("unchecked")
-                                                CallbackWrapper<E> castedWrapper = (CallbackWrapper<E>) wrapper;
-                                                castedWrapper.consumer.accept(eventClass.cast(event));
-                                                if (!castedWrapper.keepListener) {
-                                                    list.remove(wrapper);
-                                                }
-                                            } catch (Exception ex) {
-                                                Bukkit.getLogger().warning("[FrostAPI] Exceção em callback por jogador: " + ex.getMessage());
-                                                ex.printStackTrace();
+                                    if (list != null && !list.isEmpty()) {
+                                        CallbackWrapper<? extends org.bukkit.event.Event> wrapper = list.get(0);
+                                        try {
+                                            @SuppressWarnings("unchecked")
+                                            CallbackWrapper<E> castedWrapper = (CallbackWrapper<E>) wrapper;
+                                            castedWrapper.consumer.accept(eventClass.cast(event));
+                                            if (!castedWrapper.keepListener) {
+                                                list.remove(wrapper);
                                             }
+                                        } catch (Exception ex) {
+                                            Bukkit.getLogger().warning("[FrostAPI] Exceção em callback por jogador: " + ex.getMessage());
+                                            ex.printStackTrace();
                                         }
                                         if (list.isEmpty()) {
                                             map.remove(eventClass);
