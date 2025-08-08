@@ -14,10 +14,8 @@ public class TitleAPI {
             Class<?> chatComponentText = Class.forName("net.minecraft.server." + version + ".ChatComponentText");
             Class<?> iChatBaseComponent = Class.forName("net.minecraft.server." + version + ".IChatBaseComponent");
 
-            Object titleComponent = chatComponentText.getConstructor(String.class)
-                    .newInstance("{\"text\":\"" + title + "\"}");
-            Object subtitleComponent = chatComponentText.getConstructor(String.class)
-                    .newInstance("{\"text\":\"" + subtitle + "\"}");
+            Object titleComponent = chatComponentText.getConstructor(String.class).newInstance(title);
+            Object subtitleComponent = chatComponentText.getConstructor(String.class).newInstance(subtitle);
 
             Class<?> packetPlayOutTitle = Class.forName("net.minecraft.server." + version + ".PacketPlayOutTitle");
             Class<?> enumTitleAction = Class.forName("net.minecraft.server." + version + ".PacketPlayOutTitle$EnumTitleAction");
@@ -39,7 +37,6 @@ public class TitleAPI {
             e.printStackTrace();
         }
     }
-
 
     public static void send(Player player, String title, int fadeIn, int stay, int fadeOut) {
         send(player, title, "", fadeIn, stay, fadeOut);
