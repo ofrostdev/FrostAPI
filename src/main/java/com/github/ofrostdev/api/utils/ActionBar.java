@@ -34,11 +34,18 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class ActionBar {
 
+    private static Plugin plugin;
+
     private String message;
     private Sound sound = null;
 
     private ActionBar(String message) {
         this.message = message;
+    }
+
+    public static void init(Plugin plugin) {
+        if (ActionBar.plugin != null) return;
+        ActionBar.plugin = plugin;
     }
 
     /**
@@ -124,11 +131,13 @@ public final class ActionBar {
      * Envia a mensagem ao jogador por vários segundos.
      *
      * @param player Jogador alvo.
-     * @param plugin Plugin executor.
      * @param seconds Duração em segundos.
      */
-    public void sendFor(Player player, Plugin plugin, int seconds) {
-        if (player == null || plugin == null || seconds <= 0) return;
+    public void sendFor(Player player, int seconds) {
+        if (plugin == null) {
+            throw new IllegalArgumentException("[FrostAPI] ActionBar -> Registre com.github.ofrostdev.api.FrostAPI.enable(Plugin plugin) na main!");
+        }
+        if (player == null || seconds <= 0) return;
         runRepeatedly(plugin, seconds, () -> send(player));
     }
 
@@ -137,13 +146,15 @@ public final class ActionBar {
     /**
      * Envia a mensagem no estilo "máquina de escrever" (caractere por caractere) no ActionBar.
      *
-     * @param plugin Plugin principal.
      * @param player Jogador alvo.
      * @param text Mensagem a ser escrita.
      * @param delay Delay entre os caracteres (em ticks, 20 ticks = 1 segundo).
      */
-    public static void sendTypewriter(Plugin plugin, Player player, String text, int delay) {
-        if (plugin == null || player == null || text == null || text.isEmpty()) return;
+    public void sendTypewriter(Player player, String text, int delay) {
+        if (plugin == null) {
+            throw new IllegalArgumentException("[FrostAPI] ActionBar -> Registre com.github.ofrostdev.api.FrostAPI.enable(Plugin plugin) na main!");
+        }
+        if (player == null || text == null || text.isEmpty()) return;
 
         UUID uuid = player.getUniqueId();
 
