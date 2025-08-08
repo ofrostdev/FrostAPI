@@ -1,9 +1,9 @@
 package com.github.ofrostdev.api.event.multi;
 
 import org.bukkit.event.Event;
-import java.util.List;
+import java.util.Set;
 
 public interface MultiEventHandler {
     void handle(Event event);
-    List<Class<? extends Event>> getEventTypes();
+    Set<Class<? extends Event>> getEventTypes();
 }

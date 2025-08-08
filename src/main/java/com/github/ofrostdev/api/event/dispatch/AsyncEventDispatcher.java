@@ -1,59 +1,61 @@
-package com.github.ofrostdev.api.event;
+package com.github.ofrostdev.api.event.dispatch;
 
 import com.github.ofrostdev.api.event.multi.MultiEventHandler;
 import com.github.ofrostdev.api.event.single.EventHandler;
-import org.bukkit.event.Event;
-import org.bukkit.event.Listener;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-public class EventDispatcher implements Listener {
+public class AsyncEventDispatcher implements Listener {
 
-    private static final Map<Class<? extends Event>, List<EventHandler<?>>> handlers = new HashMap<>();
-    private static final Set<Class<? extends Event>> registeredEvents = new HashSet<>();
+    private static final ConcurrentHashMap<Class<? extends Event>, CopyOnWriteArrayList<EventHandler<?>>> handlers = new ConcurrentHashMap<>();
+    private static final Set<Class<? extends Event>> registeredEvents = ConcurrentHashMap.newKeySet();
+    private static final CopyOnWriteArrayList<MultiEventHandler> multiHandlers = new CopyOnWriteArrayList<>();
+    private static final ConcurrentHashMap<Class<? extends Event>, CopyOnWriteArrayList<MultiEventHandler>> multiEventMap = new ConcurrentHashMap<>();
 
-    private static final List<MultiEventHandler> multiHandlers = new ArrayList<>();
-
+    private static final Listener EMPTY_LISTENER = new Listener() {};
     private static Plugin plugin;
 
     public static void init(Plugin plugin) {
-        if (EventDispatcher.plugin != null) return;
-        EventDispatcher.plugin = plugin;
+        if (AsyncEventDispatcher.plugin != null) return;
+        AsyncEventDispatcher.plugin = plugin;
     }
 
     @SuppressWarnings("unchecked")
     public static <T extends Event> void register(EventHandler<T> handler) {
         if (plugin == null) {
-            throw new IllegalArgumentException("[FrostAPI] EventDispatcher -> Registre com.github.ofrostdev.api.FrostAPI.enable(Plugin plugin) na main!");
+            throw new IllegalStateException("[FrostAPI] AsyncEventDispatcher -> Registre FrostAPI.enable(Plugin plugin) na main!");
         }
 
         Class<T> eventClass = handler.getEventType();
-        handlers.computeIfAbsent(eventClass, k -> new ArrayList<>()).add(handler);
+        if (eventClass == null) {
+            throw new IllegalArgumentException("EventHandler.getEventType() retornou null.");
+        }
 
-        if (!registeredEvents.contains(eventClass)) {
-            registeredEvents.add(eventClass);
+        handlers.computeIfAbsent(eventClass, k -> new CopyOnWriteArrayList<>()).add(handler);
+
+        if (registeredEvents.add(eventClass)) {
             validateEventClass(eventClass);
 
             Bukkit.getPluginManager().registerEvent(
                     eventClass,
-                    new Listener() {},
+                    EMPTY_LISTENER,
                     EventPriority.NORMAL,
                     (listener, event) -> {
                         if (eventClass.isInstance(event)) {
                             dispatch(event);
-                            // Chamar MultiEventHandlers também
-                            for (MultiEventHandler multiHandler : multiHandlers) {
-                                if (multiHandler.getEventTypes().contains(eventClass)) {
+
+                            List<MultiEventHandler> multiList = multiEventMap.get(eventClass);
+                            if (multiList != null) {
+                                for (MultiEventHandler multiHandler : multiList) {
                                     multiHandler.handle(event);
                                 }
                             }
@@ -66,27 +68,29 @@ public class EventDispatcher implements Listener {
 
     public static void register(MultiEventHandler multiHandler) {
         if (plugin == null) {
-            throw new IllegalArgumentException("[FrostAPI] EventDispatcher -> Registre com.github.ofrostdev.api.FrostAPI.enable(Plugin plugin) na main!");
+            throw new IllegalStateException("[FrostAPI] AsyncEventDispatcher -> Registre FrostAPI.enable(Plugin plugin) na main!");
         }
 
         multiHandlers.add(multiHandler);
 
         for (Class<? extends Event> eventClass : multiHandler.getEventTypes()) {
-            validateEventClass(eventClass);
+            multiEventMap.computeIfAbsent(eventClass, k -> new CopyOnWriteArrayList<>()).add(multiHandler);
 
-            if (!registeredEvents.contains(eventClass)) {
-                registeredEvents.add(eventClass);
+            if (registeredEvents.add(eventClass)) {
+                validateEventClass(eventClass);
 
                 Bukkit.getPluginManager().registerEvent(
                         eventClass,
-                        new Listener() {},
+                        EMPTY_LISTENER,
                         EventPriority.NORMAL,
                         (listener, event) -> {
                             if (eventClass.isInstance(event)) {
                                 dispatch(event);
-                                for (MultiEventHandler handler : multiHandlers) {
-                                    if (handler.getEventTypes().contains(eventClass)) {
-                                        handler.handle(event);
+
+                                List<MultiEventHandler> multiList = multiEventMap.get(eventClass);
+                                if (multiList != null) {
+                                    for (MultiEventHandler handler1 : multiList) {
+                                        handler1.handle(event);
                                     }
                                 }
                             }
@@ -106,7 +110,7 @@ public class EventDispatcher implements Listener {
             try {
                 ((EventHandler<T>) handler).handle(event);
             } catch (ClassCastException e) {
-                e.printStackTrace();
+                Bukkit.getLogger().warning("[FrostAPI] Erro ao despachar evento: " + e.getMessage());
             }
         }
     }
