@@ -1,10 +1,14 @@
-package com.github.ofrostdev.api.utils.items;
+package com.github.ofrostdev.api.utils.items.v1_8_R3;
 
-import net.minecraft.server.v1_8_R3.*;
+import net.minecraft.server.v1_8_R3.NBTBase;
+import net.minecraft.server.v1_8_R3.NBTTagCompound;
+import net.minecraft.server.v1_8_R3.NBTTagList;
+import net.minecraft.server.v1_8_R3.NBTTagString;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 

@@ -23,7 +23,7 @@ repositories {
 
 dependencies {
     compileOnly "org.spigotmc:spigot-api:1.12-R0.1-SNAPSHOT"
-    compileOnly files('libs/Spigot.jar')
+    compileOnly files('libs/spigot-1.8.8.jar')
 
     implementation 'com.github.iDimaBR:sql-provider:main-SNAPSHOT'
 }
