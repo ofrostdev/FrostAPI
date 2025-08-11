@@ -26,18 +26,18 @@ public class Animation {
     private boolean paused = false;
     private Runnable onFinish = null;
 
-    public Animation interval(long ticks) {
+    public Animation setInteraval(long ticks) {
         if (ticks < 1) ticks = 1;
         this.interval = ticks;
         return this;
     }
 
-    public Animation duration(long ticks) {
+    public Animation setDuration(long ticks) {
         this.durationTicks = Math.max(0, ticks);
         return this;
     }
 
-    public Animation loop(boolean loop) {
+    public Animation setLoop(boolean loop) {
         this.loop = loop;
         return this;
     }
@@ -53,12 +53,23 @@ public class Animation {
         return this;
     }
 
-    public Animation targets(Collection<Player> players) {
+    public Animation setTarget(Player player) {
+        this.explicitTargets = Collections.singletonList(player);
+        return this;
+    }
+
+    public Animation setTarget(Collection<Player> players) {
         this.explicitTargets = players;
         return this;
     }
 
-    public Animation targetPredicate(Predicate<Player> predicate) {
+    public Collection<Player> getTargets() {
+        if (explicitTargets != null) return new ArrayList<>(explicitTargets);
+        return Collections.emptyList();
+    }
+
+
+    public Animation setTargetPredicate(Predicate<Player> predicate) {
         this.targetPredicate = predicate;
         return this;
     }
