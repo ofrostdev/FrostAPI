@@ -25,6 +25,7 @@ dependencies {
     compileOnly "org.spigotmc:spigot-api:1.12-R0.1-SNAPSHOT"
     compileOnly files('libs/spigot-1.8.8.jar')
 
+    implementation 'com.github.ofrostdev:command-framework:main-SNAPSHOT'
     implementation 'com.github.iDimaBR:sql-provider:main-SNAPSHOT'
 }
 
@@ -50,7 +51,7 @@ java {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
-
+    options.compilerArgs << "-parameters"
     if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
         options.release.set(targetJavaVersion)
     }

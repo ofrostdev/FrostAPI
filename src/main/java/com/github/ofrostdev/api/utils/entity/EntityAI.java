@@ -87,18 +87,21 @@ public class EntityAI {
                 creature.goalSelector.a(7, new PathfinderGoalRandomStroll(creature, moveSpeed));
             }
 
-            if (lookPlayer) {
-                creature.goalSelector.a(8, new PathfinderGoalLookAtPlayer(creature, EntityHuman.class, 8.0F));
-            }
-
             if (lookAround) {
-                creature.goalSelector.a(8, new PathfinderGoalRandomLookaround(creature));
+                creature.goalSelector.a(9, new PathfinderGoalRandomLookaround(creature));
             }
 
             if (targetPlayer != null) {
                 creature.goalSelector.a(meleePriority, new PathfinderGoalMeleeAttack(creature, moveSpeed, true));
                 creature.targetSelector.a(meleePriority, new PathfinderGoalNearestAttackableTarget(creature, targetPlayer.getClass(), true));
-                creature.goalSelector.a(rangedPriority, new PathfinderGoalFollowPlayer(creature, targetPlayer, moveSpeed, 2.0F, 1.0F));
+
+                if (lookPlayer) {
+                    creature.goalSelector.a(rangedPriority, new PathfinderGoalFollowPlayer(creature, targetPlayer, moveSpeed, 2.0F, 1.0F, 3));
+                } else {
+                    creature.goalSelector.a(rangedPriority, new PathfinderGoalFollowPlayer(creature, targetPlayer, moveSpeed, 2.0F, 1.0F, 1));
+                    creature.goalSelector.a(8, new PathfinderGoalLookAtPlayer(creature, EntityHuman.class, 8.0F));
+                }
+
             } else if (targetClass != null) {
                 creature.goalSelector.a(meleePriority, new PathfinderGoalMeleeAttack(creature, moveSpeed, true));
                 creature.targetSelector.a(meleePriority, new PathfinderGoalNearestAttackableTarget(creature, targetClass, 0, true, false, null));
@@ -108,4 +111,5 @@ public class EntityAI {
             e.printStackTrace();
         }
     }
+
 }

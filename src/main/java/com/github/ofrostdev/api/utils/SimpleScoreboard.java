@@ -145,6 +145,102 @@ public class SimpleScoreboard {
     }
 
     /**
+     * Update title of scoreboard and send packet to player
+     * @param player O jogador.
+     * @param newTitle O novo título.
+     */
+    public void updateTitle(Player player, String newTitle) {
+        try {
+            final Object packObjective = PACKET_PLAY_OUT_SCOREBOARD_OBJETIVE_CLASS.newInstance();
+            setFieldValue(packObjective, "a", newTitle);
+            setFieldValue(packObjective, "b", newTitle);
+            setFieldValue(packObjective, "c", INTEGER);
+            setFieldValue(packObjective, "d", 2);
+            sendPacket(player, packObjective);
+
+            final Object packDisplay = PACKET_PLAY_OUT_SCOREBOARD_DISPLAY_OBJETIVE_CLASS.newInstance();
+            setFieldValue(packDisplay, "a", 1);
+            setFieldValue(packDisplay, "b", newTitle);
+            sendPacket(player, packDisplay);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Check if line is empty
+     * @param lineNumber line
+     * @return true if empty.
+     */
+    public boolean isLineEmpty(int lineNumber) {
+        if (lineNumber < 0 || lineNumber >= lines.length) return true;
+        return lines[lineNumber] == null || lines[lineNumber].trim().isEmpty();
+    }
+
+    /**
+     * Update the specified line and send packet to player
+     * @param player The player.
+     * @param lineNumber The line of update.
+     */
+    public void updateLine(Player player, int lineNumber) {
+        try {
+            if (lineNumber < 0 || lineNumber >= lines.length) return;
+            String line = lines[lineNumber];
+            if (line != null) {
+                String teamName = "l" + lineNumber;
+                String playerName = ChatColor.values()[lineNumber].toString() + ChatColor.RESET;
+
+                Object packTeam = createTeamPacket(teamName, line, null, false);
+                sendPacket(player, packTeam);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Clears all lines internally without atualizar o scoreboard.
+     */
+    public void clearLines() {
+        for (int i = 0; i < lines.length; i++) {
+            lines[i] = null;
+        }
+    }
+
+    /**
+     * Clears the scoreboard for the player by removing the objective.
+     * @param player The player whose scoreboard will be cleared.
+     */
+    public void clear(Player player) {
+        try {
+            final Object packObjective = PACKET_PLAY_OUT_SCOREBOARD_OBJETIVE_CLASS.newInstance();
+
+            setFieldValue(packObjective, "a", this.title);
+            setFieldValue(packObjective, "b", this.title);
+            setFieldValue(packObjective, "c", INTEGER);
+            setFieldValue(packObjective, "d", 1);
+
+            sendPacket(player, packObjective);
+
+            final Object packDisplay = PACKET_PLAY_OUT_SCOREBOARD_DISPLAY_OBJETIVE_CLASS.newInstance();
+            setFieldValue(packDisplay, "a", 1);
+            setFieldValue(packDisplay, "b", "");
+            sendPacket(player, packDisplay);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Return the max of line is supported.
+     * @return Max lines (21)
+     */
+    public int getMaxLines() {
+        return lines.length;
+    }
+
+    /**
      * Creates the objective packet with the {this.title} title.
      * @return The objective packet
      * @throws Exception If something goes wrong.

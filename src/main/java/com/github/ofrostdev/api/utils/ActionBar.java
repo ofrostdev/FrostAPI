@@ -112,11 +112,26 @@ public final class ActionBar {
     }
 
     /**
+     * Envia a mensagem ao jogador por vários segundos.
+     *
+     * @param player Jogador alvo.
+     * @param seconds Duração em segundos.
+     */
+    public void send(Player player, int seconds) {
+        if (plugin == null) {
+            throw new IllegalArgumentException("[FrostAPI] ActionBar -> Registre com.github.ofrostdev.api.FrostAPI.enable(Plugin plugin) na main!");
+        }
+        if (player == null || seconds <= 0) return;
+        runRepeatedly(plugin, seconds, () -> send(player));
+    }
+
+
+    /**
      * Envia a mensagem para vários jogadores.
      *
      * @param players Coleção de jogadores.
      */
-    public void sendTo(Collection<? extends Player> players) {
+    public void send(Collection<? extends Player> players) {
         players.forEach(this::send);
     }
 
@@ -124,21 +139,18 @@ public final class ActionBar {
      * Envia para todos os jogadores online.
      */
     public void broadcast() {
-        sendTo(Bukkit.getOnlinePlayers());
+        send(Bukkit.getOnlinePlayers());
     }
 
     /**
-     * Envia a mensagem ao jogador por vários segundos.
+     * Envia a mensagem a todos online por vários segundos.
      *
-     * @param player Jogador alvo.
+     * @param plugin Plugin executor.
      * @param seconds Duração em segundos.
      */
-    public void sendFor(Player player, int seconds) {
-        if (plugin == null) {
-            throw new IllegalArgumentException("[FrostAPI] ActionBar -> Registre com.github.ofrostdev.api.FrostAPI.enable(Plugin plugin) na main!");
-        }
-        if (player == null || seconds <= 0) return;
-        runRepeatedly(plugin, seconds, () -> send(player));
+    public void broadcast(Plugin plugin, int seconds) {
+        if (plugin == null || seconds <= 0) return;
+        runRepeatedly(plugin, seconds, this::broadcast);
     }
 
     public static final Map<UUID, BukkitTask> activeTasks = new ConcurrentHashMap<>();
@@ -188,17 +200,6 @@ public final class ActionBar {
         }.runTaskTimer(plugin, 0L, delay);
 
         activeTasks.put(uuid, task);
-    }
-
-    /**
-     * Envia a mensagem a todos online por vários segundos.
-     *
-     * @param plugin Plugin executor.
-     * @param seconds Duração em segundos.
-     */
-    public void broadcastFor(Plugin plugin, int seconds) {
-        if (plugin == null || seconds <= 0) return;
-        runRepeatedly(plugin, seconds, this::broadcast);
     }
 
     private void runRepeatedly(Plugin plugin, int seconds, Runnable action) {

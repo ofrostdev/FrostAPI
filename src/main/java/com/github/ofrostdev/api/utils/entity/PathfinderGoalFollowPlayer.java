@@ -11,14 +11,20 @@ public class PathfinderGoalFollowPlayer extends PathfinderGoal {
     private final double speed;
     private final float maxDist;
     private final float minDist;
+    private final int controlFlags;
 
-    public PathfinderGoalFollowPlayer(EntityCreature entity, Player player, double speed, float maxDist, float minDist) {
+    public PathfinderGoalFollowPlayer(EntityCreature entity, Player player, double speed, float maxDist, float minDist, int controlFlags) {
         this.entity = entity;
         this.player = player;
         this.speed = speed;
         this.maxDist = maxDist;
         this.minDist = minDist;
-        a(1); // Control flags
+        this.controlFlags = controlFlags;
+        a(controlFlags);
+    }
+
+    public PathfinderGoalFollowPlayer(EntityCreature entity, Player player, double speed, float maxDist, float minDist) {
+        this(entity, player, speed, maxDist, minDist, 1);
     }
 
     @Override
