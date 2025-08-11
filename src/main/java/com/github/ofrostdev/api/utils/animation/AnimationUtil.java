@@ -1,23 +1,13 @@
 package com.github.ofrostdev.api.utils.animation;
 
-import com.github.ofrostdev.api.task.TaskController;
-import com.github.ofrostdev.api.utils.Config;
 import com.github.ofrostdev.api.utils.PacketUtils;
-import net.minecraft.server.v1_8_R3.Entity;
-import net.minecraft.server.v1_8_R3.EntityArmorStand;
-import net.minecraft.server.v1_8_R3.Packet;
-import net.minecraft.server.v1_8_R3.PacketPlayOutEntityHeadRotation;
+import net.minecraft.server.v1_8_R3.*;
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntity.PacketPlayOutEntityLook;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftArmorStand;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
-import org.bukkit.entity.ArmorStand;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
 
 import java.util.Collection;
 
@@ -39,15 +29,16 @@ public final class AnimationUtil {
         return out;
     }
 
-    public static Packet<?> createHeadRotationPacket(ArmorStand armorStand, float headYawDegrees) {
-        EntityArmorStand nmsArmorStand = ((CraftArmorStand) armorStand).getHandle();
-        byte headYaw = (byte) (headYawDegrees * 256.0F / 360.0F);
-        return new PacketPlayOutEntityHeadRotation(nmsArmorStand, headYaw);
-    }
-
-    public static Packet<?> createHeadRotationPacket(Entity nmsEntity, float headYawDegrees) {
-        byte headYaw = (byte) (headYawDegrees * 256.0F / 360.0F);
-        return new PacketPlayOutEntityHeadRotation(nmsEntity, headYaw);
+    public static Packet<?> createEntityTeleportPacket(int entityId, Location loc) {
+        return new PacketPlayOutEntityTeleport(
+                entityId,
+                MathHelper.floor(loc.getX() * 32.0D),
+                MathHelper.floor(loc.getY() * 32.0D),
+                MathHelper.floor(loc.getZ() * 32.0D),
+                (byte)(loc.getYaw() * 256.0F / 360.0F),
+                (byte)(loc.getPitch() * 256.0F / 360.0F),
+                false
+        );
     }
 
     public static Packet<?> createEntityLookPacket(int entityId, float yawDegrees, float pitchDegrees) {
@@ -56,16 +47,28 @@ public final class AnimationUtil {
         return new PacketPlayOutEntityLook(entityId, y, p, true);
     }
 
-    public static void sendHeadRotationToPlayers(Entity nmsEntity, float headYaw, Collection<? extends Player> players) {
-        PacketUtils.sendPacket(players, createHeadRotationPacket(nmsEntity, headYaw));
+    public static Packet<?> createArmorStandSpawnPacket(EntityArmorStand armorStand) {
+        return new PacketPlayOutSpawnEntityLiving(armorStand);
     }
 
-    public static void sendHeadRotationToPlayers(ArmorStand armorStand, float headYaw, Collection<? extends Player> players) {
-        PacketUtils.sendPacket(players, createHeadRotationPacket(armorStand, headYaw));
+    public static Packet<?> createEntityEquipmentPacket(int entityId, int slot, ItemStack item) {
+        net.minecraft.server.v1_8_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
+        return new PacketPlayOutEntityEquipment(entityId, slot, nmsItem);
+    }
+
+    public static void sendArmorStandSpawn(EntityArmorStand armorStand, ItemStack helmet, Collection<? extends Player> players) {
+        int entityId = armorStand.getId();
+        PacketUtils.sendPacket(players, createArmorStandSpawnPacket(armorStand));
+        PacketUtils.sendPacket(players, createEntityEquipmentPacket(entityId, 4, helmet));
     }
 
     public static void sendEntityLookToPlayers(int entityId, float yaw, float pitch, Collection<? extends Player> players) {
         PacketUtils.sendPacket(players, createEntityLookPacket(entityId, yaw, pitch));
     }
+
+    public static void sendEntityTeleportToPlayers(int entityId, Location loc, Collection<? extends Player> players) {
+        PacketUtils.sendPacket(players, createEntityTeleportPacket(entityId, loc));
+    }
+
 
 }
