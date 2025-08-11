@@ -6,8 +6,6 @@ public class FrostManager {
 
     private static Plugin plugin;
 
-    public FrostManager() {}
-
     public static void init(Plugin plugin) {
         if (FrostManager.plugin != null) return;
         FrostManager.plugin = plugin;

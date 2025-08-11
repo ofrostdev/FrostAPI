@@ -1,0 +1,4 @@
+name: FrostAPI
+version: '${version}'
+main: com.github.ofrostdev.api.FrostAPI
+load: STARTUP

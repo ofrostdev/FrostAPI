@@ -1,0 +1,15 @@
+###############################
+#          FrostAPI           #
+#       by PalhacinDev_       #
+#   Contact me for support!   #
+###############################
+
+database:
+  type: mysql
+  mysql:
+    address: "localhost:3306"
+    username: "root"
+    password: ""
+    database: "test"
+  sqlite:
+    fileName: "storage.db"

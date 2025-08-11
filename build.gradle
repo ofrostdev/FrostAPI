@@ -22,20 +22,21 @@ repositories {
 }
 
 dependencies {
-    compileOnly "org.spigotmc:spigot-api:1.12-R0.1-SNAPSHOT"
     compileOnly files('libs/spigot-1.8.8.jar')
+
+    compileOnly("org.projectlombok:lombok:1.18.38")
+    annotationProcessor("org.projectlombok:lombok:1.18.38")
 
     implementation 'com.github.ofrostdev:command-framework:main-SNAPSHOT'
     implementation 'com.github.iDimaBR:sql-provider:main-SNAPSHOT'
+
 }
 
 shadowJar {
     archiveClassifier.set('')
 
-    exclude 'org/spigotmc/*'
-    exclude 'com/henryfabio/*'
+    exclude 'org/spigotmc/**'
 
-    minimize()
 }
 build.dependsOn shadowJar
 
