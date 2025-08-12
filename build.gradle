@@ -36,12 +36,13 @@ shadowJar {
     archiveClassifier.set('')
 
     exclude 'org/spigotmc/*'
-    exclude 'org/bukkit/*'
 
     relocate 'com/henryfabio/sqlprovider', 'com/github/ofrostdev/api/api/sqlprovider'
     relocate 'com/zaxxer', 'com/github/ofrostdev/api/api/sqlprovider'
     relocate 'me/saiintbrisson', 'com/github/ofrostdev/api/api/commandframework'
-    relocate 'org', 'com/github/ofrostdev/api/api'
+    relocate 'org/intellij', 'com/github/ofrostdev/api/api/intellij'
+    relocate 'org/jetbrains', 'com/github/ofrostdev/api/api/jetbrains'
+    relocate 'org/slf4j', 'com/github/ofrostdev/api/api/slf4j'
 
 
 }
