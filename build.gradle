@@ -35,12 +35,13 @@ dependencies {
 shadowJar {
     archiveClassifier.set('')
 
+    exclude 'org/spigotmc/**'
+
     relocate 'com/henryfabio/sqlprovider', 'com/github/ofrostdev/api/api/sqlprovider'
     relocate 'com/zaxxer', 'com/github/ofrostdev/api/api/sqlprovider'
     relocate 'me/saiintbrisson', 'com/github/ofrostdev/api/api/commandframework'
     relocate 'org', 'com/github/ofrostdev/api/api'
 
-    exclude 'org/spigotmc/**'
 
 }
 build.dependsOn shadowJar
