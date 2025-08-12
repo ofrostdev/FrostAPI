@@ -35,7 +35,8 @@ dependencies {
 shadowJar {
     archiveClassifier.set('')
 
-    exclude 'org/spigotmc/**'
+    exclude 'org/spigotmc/*'
+    exclude 'org/bukkit/*'
 
     relocate 'com/henryfabio/sqlprovider', 'com/github/ofrostdev/api/api/sqlprovider'
     relocate 'com/zaxxer', 'com/github/ofrostdev/api/api/sqlprovider'
