@@ -27,6 +27,7 @@ public class FrostAPI extends JavaPlugin {
 
         getLogger().info("Conexão com o repositório estabelecida com sucesso.");
 
+        TaskController.init(this);
         new UpdateChecker(this, "ofrostdev", "frostapi")
                 .check(getFile());
     }
