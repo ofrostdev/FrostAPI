@@ -3,10 +3,11 @@ package com.github.ofrostdev.api.utils.inventory;
 import com.github.ofrostdev.api.utils.items.ItemBase64;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-public class InventoryHelper {
+public class InventoryAPI {
 
     public static boolean isInventoryFull(Player player) {
         return player.getInventory().firstEmpty() == -1;
@@ -59,5 +60,14 @@ public class InventoryHelper {
 
         inventory.setContents(contents);
         inventory.setArmorContents(armor);
+    }
+
+    public static String encodeInventory(Inventory inventory) {
+        ItemStack[] items = inventory.getContents();
+        return ItemBase64.encodeItems(items);
+    }
+
+    public static ItemStack[] decodeInventory(String base64) {
+        return ItemBase64.decodeItems(base64);
     }
 }
