@@ -24,27 +24,51 @@ public class Config {
     }
 
     public Config(String fileName) {
-        if (plugin == null) throw new IllegalArgumentException("[FrostAPI] Config -> Registre o plugin com Config.init(plugin)!");
+        if (plugin == null)
+            throw new IllegalArgumentException("[FrostAPI] Config -> Registre o plugin com Config.init(plugin)!");
+
         this.fileName = fileName;
+        this.configFile = new File(plugin.getDataFolder(), fileName);
 
-        File folder = plugin.getDataFolder();
-        if (!folder.exists() && !folder.mkdirs()) plugin.getLogger().warning("Não foi possível criar a pasta do plugin.");
-
-        this.configFile = new File(folder, fileName);
-        if (!this.configFile.exists()) try {
-            this.configFile.createNewFile();
-        } catch (IOException e) {
-            plugin.getLogger().severe("Não foi possível criar o arquivo " + fileName);
-            e.printStackTrace();
-        }
+        saveDefaultConfig();
 
         this.fileConfiguration = YamlConfiguration.loadConfiguration(this.configFile);
+
+        reloadDefaults();
+    }
+
+
+    private void reloadDefaults() {
+        InputStream defConfigStream = plugin.getResource(fileName);
+        if (defConfigStream != null) {
+            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
+            fileConfiguration.setDefaults(defConfig);
+        }
     }
 
     public void saveDefaultConfig() {
-        if (!this.configFile.exists())
-            plugin.saveResource(this.fileName, false);
+        try {
+            File folder = plugin.getDataFolder();
+            if (!folder.exists() && !folder.mkdirs()) {
+                plugin.getLogger().warning("Não foi possível criar a pasta do plugin.");
+            }
+
+            if (!this.configFile.exists()) {
+                File parent = configFile.getParentFile();
+                if (!parent.exists() && !parent.mkdirs()) {
+                    plugin.getLogger().severe("Não foi possível criar o diretório para o arquivo: " + fileName);
+                }
+
+                if (!this.configFile.createNewFile()) {
+                    plugin.getLogger().warning("Falha ao criar o arquivo: " + fileName);
+                }
+            }
+        } catch (IOException e) {
+            plugin.getLogger().severe("Erro ao criar o arquivo de configuração " + fileName);
+            e.printStackTrace();
+        }
     }
+
 
     public void reloadConfig() {
         this.fileConfiguration = YamlConfiguration.loadConfiguration(this.configFile);
