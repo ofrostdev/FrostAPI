@@ -1,4 +1,4 @@
 name: FrostAPI
-version: '1.0-ef72jk3'
+version: '1.0-ef72je3'
 main: com.github.ofrostdev.api.FrostAPI
 load: STARTUP

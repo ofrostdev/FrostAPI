@@ -232,16 +232,22 @@ public class SectionBuilder<T> {
     public static class LocationAdapter implements Adapter<Location> {
 
         @Override
-        public Location supply(Object object) { // deserialize loc
+        public Location supply(Object object) {
             String value = (String) object;
-            if (!value.contains(";")) return null;
-            String[] parts = value.split(";");
-            double x = Double.parseDouble(parts[0]);
-            double y = Double.parseDouble(parts[1]);
-            double z = Double.parseDouble(parts[2]);
-            float yaw = Float.parseFloat(parts[3]);
-            float pitch = Float.parseFloat(parts[4]);
-            World w = Bukkit.getServer().getWorld(parts[5]);
+            if (value == null || !value.contains(":")) return null;
+
+            String[] parts = value.split(":");
+            if (parts.length < 6) return null;
+
+            World w = Bukkit.getServer().getWorld(parts[0]);
+            if (w == null) return null;
+
+            double x = Double.parseDouble(parts[1]);
+            double y = Double.parseDouble(parts[2]);
+            double z = Double.parseDouble(parts[3]);
+            float yaw = Float.parseFloat(parts[4]);
+            float pitch = Float.parseFloat(parts[5]);
+
             return new Location(w, x, y, z, yaw, pitch);
         }
     }
