@@ -10,6 +10,7 @@ import com.github.ofrostdev.api.utils.ActionBar;
 import com.github.ofrostdev.api.utils.Config;
 import com.github.ofrostdev.api.utils.database.DatabaseFactory;
 import com.henryfabio.sqlprovider.connector.SQLConnector;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class FrostAPI extends JavaPlugin {
@@ -25,16 +26,19 @@ public class FrostAPI extends JavaPlugin {
         sqlConnector = factory.createConnector(getConfig().getConfigurationSection("database"));
 
         getLogger().info("Conexão com o repositório estabelecida com sucesso.");
-        FrostManager.init(this);
-        Event.init(this);
-        AsyncEventDispatcher.init(this);
-        SyncEventDispatcher.init(this);
-        Config.init(this);
-        ActionBar.init(this);
-        TaskController.init(this);
 
         new UpdateChecker(this, "ofrostdev", "frostapi")
                 .check(getFile());
+    }
+
+    public static void enable(Plugin plugin){
+        FrostManager.init(plugin);
+        Event.init(plugin);
+        AsyncEventDispatcher.init(plugin);
+        SyncEventDispatcher.init(plugin);
+        Config.init(plugin);
+        ActionBar.init(plugin);
+        TaskController.init(plugin);
     }
 
     public static SQLConnector getSqlConnector(){
