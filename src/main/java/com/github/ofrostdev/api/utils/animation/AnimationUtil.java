@@ -4,7 +4,6 @@ import com.github.ofrostdev.api.utils.PacketUtils;
 import net.minecraft.server.v1_8_R3.*;
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntity.PacketPlayOutEntityLook;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -29,7 +28,7 @@ public final class AnimationUtil {
         return out;
     }
 
-    public static Packet<?> createEntityTeleportPacket(int entityId, Location loc) {
+    private static Packet<?> createEntityTeleportPacket(int entityId, Location loc) {
         return new PacketPlayOutEntityTeleport(
                 entityId,
                 MathHelper.floor(loc.getX() * 32.0D),
@@ -41,19 +40,29 @@ public final class AnimationUtil {
         );
     }
 
-    public static Packet<?> createEntityLookPacket(int entityId, float yawDegrees, float pitchDegrees) {
+    private static Packet<?> createEntityLookPacket(int entityId, float yawDegrees, float pitchDegrees) {
         byte y = (byte) (yawDegrees * 256.0F / 360.0F);
         byte p = (byte) (pitchDegrees * 256.0F / 360.0F);
         return new PacketPlayOutEntityLook(entityId, y, p, true);
     }
 
-    public static Packet<?> createArmorStandSpawnPacket(EntityArmorStand armorStand) {
+    private static Packet<?> createArmorStandSpawnPacket(EntityArmorStand armorStand) {
         return new PacketPlayOutSpawnEntityLiving(armorStand);
     }
 
-    public static Packet<?> createEntityEquipmentPacket(int entityId, int slot, ItemStack item) {
+    private static Packet<?> createEntityEquipmentPacket(int entityId, int slot, ItemStack item) {
         net.minecraft.server.v1_8_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
         return new PacketPlayOutEntityEquipment(entityId, slot, nmsItem);
+    }
+
+    private static Packet<?> createEntityPitchPacket(Entity entity, float pitchDegrees) {
+        byte yawByte = (byte) (entity.yaw * 256.0F / 360.0F);
+        byte pitchByte = (byte) (pitchDegrees * 256.0F / 360.0F);
+        return new PacketPlayOutEntityLook(entity.getId(), yawByte, pitchByte, true);
+    }
+
+    public static void sendEntityPitchToPlayers(Entity entity, float pitchDegrees, Collection<? extends Player> players) {
+        PacketUtils.sendPacket(players, createEntityPitchPacket(entity, pitchDegrees));
     }
 
     public static void sendArmorStandSpawn(EntityArmorStand armorStand, ItemStack helmet, Collection<? extends Player> players) {

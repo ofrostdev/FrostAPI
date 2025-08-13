@@ -10,7 +10,6 @@ import com.github.ofrostdev.api.utils.ActionBar;
 import com.github.ofrostdev.api.utils.Config;
 import com.github.ofrostdev.api.utils.database.DatabaseFactory;
 import com.henryfabio.sqlprovider.connector.SQLConnector;
-import me.saiintbrisson.bukkit.command.BukkitFrame;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class FrostAPI extends JavaPlugin {
@@ -33,6 +32,9 @@ public class FrostAPI extends JavaPlugin {
         Config.init(this);
         ActionBar.init(this);
         TaskController.init(this);
+
+        new UpdateChecker(this, "ofrostdev", "frostapi")
+                .check(getFile());
     }
 
     public static SQLConnector getSqlConnector(){
