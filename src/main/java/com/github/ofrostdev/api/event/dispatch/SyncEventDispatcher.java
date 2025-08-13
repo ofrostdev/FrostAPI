@@ -26,6 +26,19 @@ public class SyncEventDispatcher implements Listener {
         SyncEventDispatcher.plugin = plugin;
     }
 
+    @SafeVarargs
+    public static void registerHandlers(EventHandler<? extends Event>... eventHandlers) {
+        for (EventHandler<? extends Event> handler : eventHandlers) {
+            register(handler);
+        }
+    }
+
+    public static void registerMultiHandlers(MultiEventHandler... multiEventHandlers) {
+        for (MultiEventHandler handler : multiEventHandlers) {
+            register(handler);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public static <T extends Event> void register(EventHandler<T> handler) {
         if (plugin == null) {
