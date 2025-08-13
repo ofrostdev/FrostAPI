@@ -4,7 +4,6 @@ plugins {
 }
 
 group = 'com.github.ofrostdev'
-version = '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -29,7 +28,7 @@ dependencies {
 
     implementation 'com.github.ofrostdev:command-framework:main-SNAPSHOT'
     implementation 'com.github.iDimaBR:sql-provider:main-SNAPSHOT'
-
+    implementation files('libs/inventory-api.jar')
 }
 
 shadowJar {
@@ -38,12 +37,12 @@ shadowJar {
     exclude 'org/spigotmc/*'
 
     relocate 'com/henryfabio/sqlprovider', 'com/github/ofrostdev/api/api/sqlprovider'
+    relocate 'com/henryfabio/minecraft', 'com/github/ofrostdev/api/api/minecraft'
     relocate 'com/zaxxer', 'com/github/ofrostdev/api/api/sqlprovider'
     relocate 'me/saiintbrisson', 'com/github/ofrostdev/api/api/commandframework'
     relocate 'org/intellij', 'com/github/ofrostdev/api/api/intellij'
     relocate 'org/jetbrains', 'com/github/ofrostdev/api/api/jetbrains'
     relocate 'org/slf4j', 'com/github/ofrostdev/api/api/slf4j'
-
 
 }
 build.dependsOn shadowJar
