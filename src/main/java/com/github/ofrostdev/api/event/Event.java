@@ -181,22 +181,14 @@ public final class Event {
         registeredListeners.remove(eventClass);
     }
 
-    public static <E extends org.bukkit.event.Event> void cancel(Player player, Class<E> eventClass, E event) {
+    public static <E extends org.bukkit.event.Event> void cancel(Player player, Class<E> eventClass) {
         UUID uuid = player.getUniqueId();
         Map<Class<? extends org.bukkit.event.Event>, CopyOnWriteArrayList<CallbackWrapper<? extends org.bukkit.event.Event>>> map = playerCallbacks.get(uuid);
         if (map == null) return;
         CopyOnWriteArrayList<CallbackWrapper<? extends org.bukkit.event.Event>> list = map.get(eventClass);
         if (list == null || list.isEmpty()) return;
 
-        CallbackWrapper<? extends org.bukkit.event.Event> wrapper = list.remove(list.size() - 1);
-        try {
-            @SuppressWarnings("unchecked")
-            CallbackWrapper<E> castedWrapper = (CallbackWrapper<E>) wrapper;
-            castedWrapper.consumer.accept(eventClass.cast(event));
-        } catch (Exception ex) {
-            Bukkit.getLogger().warning("[FrostAPI] Exceção ao cancelar último callback: " + ex.getMessage());
-            ex.printStackTrace();
-        }
+        list.remove(list.size() - 1);
 
         if (list.isEmpty()) map.remove(eventClass);
         if (map.isEmpty()) playerCallbacks.remove(uuid);
