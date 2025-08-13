@@ -1,4 +1,4 @@
 name: FrostAPI
-version: '1.0-b738nce'
+version: '1.0-c216dtc'
 main: com.github.ofrostdev.api.FrostAPI
 load: STARTUP
