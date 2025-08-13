@@ -26,7 +26,6 @@ public class SyncEventDispatcher implements Listener {
         SyncEventDispatcher.plugin = plugin;
     }
 
-    @SafeVarargs
     public static void registerHandlers(EventHandler<? extends Event>... eventHandlers) {
         for (EventHandler<? extends Event> handler : eventHandlers) {
             register(handler);

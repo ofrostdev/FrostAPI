@@ -24,18 +24,19 @@ public class Config {
     }
 
     public Config(String fileName) {
-        if (plugin == null) {
-            throw new IllegalArgumentException("[FrostAPI] Config -> Registre com.github.ofrostdev.api.FrostAPI.enable(Plugin plugin) na main!");
-        }
+        if (plugin == null) throw new IllegalArgumentException("[FrostAPI] Config -> Registre o plugin com Config.init(plugin)!");
         this.fileName = fileName;
 
         File folder = plugin.getDataFolder();
-        if (!folder.exists() && !folder.mkdirs()) {
-            plugin.getLogger().warning("Não foi possível criar a pasta do plugin.");
-        }
+        if (!folder.exists() && !folder.mkdirs()) plugin.getLogger().warning("Não foi possível criar a pasta do plugin.");
 
         this.configFile = new File(folder, fileName);
-        saveDefaultConfig();
+        if (!this.configFile.exists()) try {
+            this.configFile.createNewFile();
+        } catch (IOException e) {
+            plugin.getLogger().severe("Não foi possível criar o arquivo " + fileName);
+            e.printStackTrace();
+        }
 
         this.fileConfiguration = YamlConfiguration.loadConfiguration(this.configFile);
     }
@@ -223,5 +224,9 @@ public class Config {
 
     public boolean isConfigurationSection(String path) {
         return getConfig().isConfigurationSection(path);
+    }
+
+    public void set(String path, String value) {
+        getConfig().set(path, value);
     }
 }

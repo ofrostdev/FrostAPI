@@ -122,62 +122,67 @@ public class SectionBuilder<T> {
             ConfigurationSection section = (ConfigurationSection) object;
 
             ItemBuilder ib;
-
-            String head = !section.isSet("material") ? null : section.getString("material");
-            Material material = MATERIAL_ADAPTER.supply(section.get("material"));
-            int amount = !section.isSet("amount") ? 1 : section.getInt("amount");
-            String displayName = !section.isSet("display-name") ? null : STRING_ADAPTER.supply(section.getString("display-name"));
-            List<String> lore = !section.isSet("lore") ? null : section.getStringList("lore").stream().map(STRING_ADAPTER::supply).collect(Collectors.toList());
-            Map<Enchantment, Integer> enchants = !section.isSet("enchants") ? null : section.getStringList("enchants").stream().map(string -> string.split(":")).collect(Collectors.toMap(array -> Enchantment.getByName(array[0]), array -> Integer.parseInt(array[1].trim())));
+            String materialStr = section.getString("material");
+            int amount = section.isSet("amount") ? section.getInt("amount") : 1;
+            String displayName = section.isSet("display-name") ? STRING_ADAPTER.supply(section.getString("display-name")) : null;
+            List<String> lore = section.isSet("lore") ? section.getStringList("lore").stream().map(STRING_ADAPTER::supply).collect(Collectors.toList()) : null;
             boolean glow = section.isSet("glow") && section.getBoolean("glow");
             boolean dontstack = section.isSet("dont-stack") && section.getBoolean("dont-stack");
-            short data=0;
+            Map<Enchantment, Integer> enchants = null;
 
-            if(material == null){
-                if(head.contains(":")){
-                    String[] split = head.split(":");
-                    try {
-                        material = Material.valueOf(split[0].toUpperCase());
-                        data = Short.parseShort(split[1]);
-                    } catch (Exception e) {
-                        data = 0;
+            if (section.isSet("enchants")) {
+                enchants = section.getStringList("enchants").stream()
+                        .map(s -> s.split(":"))
+                        .collect(Collectors.toMap(a -> Enchantment.getByName(a[0]), a -> Integer.parseInt(a[1].trim())));
+            }
 
-                        e.printStackTrace();
+            if (materialStr != null) {
+                if (materialStr.startsWith("http://textures.minecraft.net/texture/") ||
+                        materialStr.startsWith("https://textures.minecraft.net/texture/")) {
+                    ib = new ItemBuilder(materialStr); // skull com textura
+                } else {
+                    Material material;
+                    short data = 0;
+                    if (materialStr.contains(":")) {
+                        String[] split = materialStr.split(":");
+                        try {
+                            material = Material.valueOf(split[0].toUpperCase());
+                            data = Short.parseShort(split[1]);
+                        } catch (Exception e) {
+                            material = Material.STONE;
+                            data = 0;
+                        }
+                    } else {
+                        try {
+                            material = Material.valueOf(materialStr.toUpperCase());
+                        } catch (Exception e) {
+                            material = Material.STONE;
+                        }
                     }
-                }
-                if(data > 0){
                     ib = new ItemBuilder(material, amount, data);
-                }else{
-                    ib = new ItemBuilder(head);
                 }
             } else {
-                ib = new ItemBuilder(material, amount);
+                ib = new ItemBuilder(Material.STONE, amount);
             }
 
             if (displayName != null) ib.setName(displayName);
             if (lore != null) ib.setLore(lore);
-            if (glow) ib.setGlowing(glow);
+            if (glow) ib.setGlowing(true);
             if (dontstack) ib.setNBTString("frostkkj", UUID.randomUUID().toString());
 
             if (enchants != null)
-                enchants.forEach((enchantment, integer) -> ib.addEnchant(enchantment, integer));
+                enchants.forEach(ib::addEnchant);
 
             if (section.isSet("nbts")) {
                 List<String> nbtList = section.getStringList("nbts");
-
                 for (String nbtEntry : nbtList) {
                     String[] split = nbtEntry.split(":", 2);
                     if (split.length != 2) continue;
-
-                    String key = split[0].trim();
-                    String value = split[1].trim().replace("%uuid_random%", UUID.randomUUID().toString());
-
-                    ib.setNBTString(key, value);
+                    ib.setNBTString(split[0].trim(), split[1].trim().replace("%uuid_random%", UUID.randomUUID().toString()));
                 }
             }
 
             ib.setAmount(amount);
-
             return ib.build();
         }
     }
