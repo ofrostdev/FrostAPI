@@ -59,16 +59,21 @@ public class Config {
                     plugin.getLogger().severe("Não foi possível criar o diretório para o arquivo: " + fileName);
                 }
 
-                if (!this.configFile.createNewFile()) {
-                    plugin.getLogger().warning("Falha ao criar o arquivo: " + fileName);
+                if (plugin.getResource(fileName) != null) {
+                    plugin.saveResource(fileName, false);
+                }
+
+                if (!this.configFile.exists()) {
+                    if (!this.configFile.createNewFile()) {
+                        plugin.getLogger().warning("Falha ao criar o arquivo: " + fileName);
+                    }
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             plugin.getLogger().severe("Erro ao criar o arquivo de configuração " + fileName);
             e.printStackTrace();
         }
     }
-
 
     public void reloadConfig() {
         this.fileConfiguration = YamlConfiguration.loadConfiguration(this.configFile);

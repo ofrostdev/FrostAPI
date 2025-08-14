@@ -3,6 +3,7 @@ package com.github.ofrostdev.api.event;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 
@@ -181,29 +182,24 @@ public final class Event {
 
     public static void cancel(Class<? extends org.bukkit.event.Event> eventClass) {
         globalCallbacks.remove(eventClass);
-        registeredListeners.remove(eventClass);
+        Listener listener = registeredListeners.remove(eventClass);
+        if (listener != null) {
+            HandlerList.unregisterAll(listener);
+        }
     }
 
-    public static <E extends org.bukkit.event.Event> void cancel(Player player, E event) {
+    public static void cancel(Player player, Class<? extends org.bukkit.event.Event> eventClass) {
         UUID uuid = player.getUniqueId();
-        Map<Class<? extends org.bukkit.event.Event>, CopyOnWriteArrayList<CallbackWrapper<? extends org.bukkit.event.Event>>> map = playerCallbacks.get(uuid);
-        if (map == null) return;
 
-        CopyOnWriteArrayList<CallbackWrapper<? extends org.bukkit.event.Event>> list = map.get(event.getClass());
-        if (list == null || list.isEmpty()) return;
+        Map<Class<? extends org.bukkit.event.Event>, CopyOnWriteArrayList<CallbackWrapper<? extends org.bukkit.event.Event>>> events = playerCallbacks.get(uuid);
+        if (events == null) return;
 
-        list.removeIf(wrapper -> {
-            try {
-                @SuppressWarnings("unchecked")
-                CallbackWrapper<E> casted = (CallbackWrapper<E>) wrapper;
-                return casted.consumer == null || casted.consumer.equals(wrapper.consumer);
-            } catch (Exception e) {
-                return false;
-            }
-        });
+        events.remove(eventClass);
 
-        if (list.isEmpty()) map.remove(event.getClass());
-        if (map.isEmpty()) playerCallbacks.remove(uuid);
+        if (events.isEmpty()) {
+            playerCallbacks.remove(uuid);
+        }
     }
+
 
 }

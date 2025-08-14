@@ -1,4 +1,4 @@
 name: FrostAPI
-version: '1.0-pd22ox8'
+version: '1.0-pd22ex8'
 main: com.github.ofrostdev.api.FrostAPI
 load: STARTUP
