@@ -116,16 +116,30 @@ public class AsyncEventDispatcher implements Listener {
     @SuppressWarnings("unchecked")
     private static <T extends Event> void dispatch(T event) {
         List<EventHandler<?>> eventHandlers = handlers.get(event.getClass());
-        if (eventHandlers == null) return;
+        if (eventHandlers != null) {
+            for (EventHandler<?> handler : eventHandlers) {
+                if (handler.getEventType().isInstance(event)) {
+                    try {
+                        ((EventHandler<T>) handler).handle(event);
+                    } catch (ClassCastException e) {
+                        Bukkit.getLogger().warning("[FrostAPI] Erro ao despachar evento: " + e.getMessage());
+                    }
+                }
+            }
+        }
 
-        for (EventHandler<?> handler : eventHandlers) {
-            try {
-                ((EventHandler<T>) handler).handle(event);
-            } catch (ClassCastException e) {
-                Bukkit.getLogger().warning("[FrostAPI] Erro ao despachar evento: " + e.getMessage());
+        List<MultiEventHandler> multiList = multiEventMap.get(event.getClass());
+        if (multiList != null) {
+            for (MultiEventHandler multiHandler : multiList) {
+                for (Class<? extends Event> type : multiHandler.getEventTypes()) {
+                    if (type.isInstance(event)) {
+                        multiHandler.handle(event);
+                    }
+                }
             }
         }
     }
+
 
     private static void validateEventClass(Class<? extends Event> eventClass) {
         try {

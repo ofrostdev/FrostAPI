@@ -114,10 +114,24 @@ public class SyncEventDispatcher implements Listener {
         if (eventHandlers == null) return;
 
         for (EventHandler<?> handler : eventHandlers) {
-            try {
-                ((EventHandler<T>) handler).handle(event);
-            } catch (ClassCastException e) {
-                Bukkit.getLogger().warning("[FrostAPI] Erro ao despachar evento: " + e.getMessage());
+            Class<?> handlerType = handler.getEventType();
+            if (handlerType.isInstance(event)) {
+                try {
+                    ((EventHandler<T>) handler).handle(event);
+                } catch (ClassCastException e) {
+                    Bukkit.getLogger().warning("[FrostAPI] Erro ao despachar evento: " + e.getMessage());
+                }
+            }
+        }
+
+        List<MultiEventHandler> multiList = multiEventMap.get(event.getClass());
+        if (multiList != null) {
+            for (MultiEventHandler handler : multiList) {
+                for (Class<? extends Event> type : handler.getEventTypes()) {
+                    if (type.isInstance(event)) {
+                        handler.handle(event);
+                    }
+                }
             }
         }
     }

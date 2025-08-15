@@ -37,7 +37,6 @@ public class Config {
         reloadDefaults();
     }
 
-
     private void reloadDefaults() {
         InputStream defConfigStream = plugin.getResource(fileName);
         if (defConfigStream != null) {

@@ -26,6 +26,7 @@ public class SectionBuilder<T> {
         CLASS_ADAPTERS.put(ItemList.class, new ListAdapter<>(new ItemAdapter()));
         CLASS_ADAPTERS.put(Sound.class, new EnumAdapter<>(Sound.class));
         CLASS_ADAPTERS.put(EntityType.class, new EnumAdapter<>(EntityType.class));
+        CLASS_ADAPTERS.put(ListEffect.class, new EffectAdapter());
     }
 
     private final ConfigurationSection mainSection;
@@ -187,6 +188,55 @@ public class SectionBuilder<T> {
         }
     }
 
+    public static class EffectAdapter implements SectionBuilder.Adapter<List<EffectAdapter.EffectData>> {
+
+        public class EffectData {
+            private final String name;
+            private final int amplifier;
+            private final int duration;
+
+            public EffectData(String name, int amplifier, int duration) {
+                this.name = name;
+                this.amplifier = amplifier;
+                this.duration = duration;
+            }
+
+            public String getName() { return name; }
+            public int getAmplifier() { return amplifier; }
+            public int getDuration() { return duration; }
+
+            @Override
+            public String toString() {
+                return name + ":" + amplifier + ":" + duration;
+            }
+        }
+
+        @Override
+        public List<EffectData> supply(Object object) {
+            List<EffectData> effects = new ArrayList<>();
+
+            if (object instanceof List<?>) {
+                List<?> list = (List<?>) object;
+                for (Object o : list) {
+                    if (o instanceof String) {
+                        String str = (String) o;
+                        String[] parts = str.split(":");
+                        if (parts.length != 3) continue;
+
+                        try {
+                            String name = parts[0].toUpperCase();
+                            int amplifier = Integer.parseInt(parts[1]);
+                            int duration = Integer.parseInt(parts[2]);
+                            effects.add(new EffectData(name, amplifier, duration));
+                        } catch (NumberFormatException ignored) {}
+                    }
+                }
+            }
+
+            return effects;
+        }
+    }
+
     private static class StringAdapter implements Adapter<String> {
 
         @Override
@@ -272,6 +322,9 @@ public class SectionBuilder<T> {
     }
 
     public static class ItemList {
+    }
+
+    public static class ListEffect {
     }
 
     public static class StringList {
