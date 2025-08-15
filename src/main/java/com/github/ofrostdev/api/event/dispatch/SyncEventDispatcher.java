@@ -96,13 +96,12 @@ public class SyncEventDispatcher implements Listener {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends Event> void dispatch(T event) {
-        List<EventHandler<?>> eventHandlers = handlers.get(event.getClass());
-        if (eventHandlers != null) {
-            for (EventHandler<?> handler : eventHandlers) {
-                if (handler.getEventType().isInstance(event)) {
+    private static void dispatch(Event event) {
+        for (Map.Entry<Class<? extends Event>, List<EventHandler<?>>> entry : handlers.entrySet()) {
+            if (entry.getKey().isInstance(event)) {
+                for (EventHandler<?> handler : entry.getValue()) {
                     try {
-                        ((EventHandler<T>) handler).handle(event);
+                        ((EventHandler<Event>) handler).handle(event);
                     } catch (ClassCastException e) {
                         Bukkit.getLogger().warning("[FrostAPI] Erro ao despachar evento: " + e.getMessage());
                     }
@@ -110,11 +109,10 @@ public class SyncEventDispatcher implements Listener {
             }
         }
 
-        List<MultiEventHandler> multiList = multiEventMap.get(event.getClass());
-        if (multiList != null) {
-            for (MultiEventHandler handler : multiList) {
-                for (Class<? extends Event> type : handler.getEventTypes()) {
-                    if (type.isInstance(event)) handler.handle(event);
+        for (Map.Entry<Class<? extends Event>, List<MultiEventHandler>> entry : multiEventMap.entrySet()) {
+            if (entry.getKey().isInstance(event)) {
+                for (MultiEventHandler handler : entry.getValue()) {
+                    handler.handle(event);
                 }
             }
         }

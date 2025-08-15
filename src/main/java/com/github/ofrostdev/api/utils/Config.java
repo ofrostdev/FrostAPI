@@ -264,4 +264,8 @@ public class Config {
         }
     }
 
+    public File getFile() {
+        return this.configFile;
+    }
+
 }
