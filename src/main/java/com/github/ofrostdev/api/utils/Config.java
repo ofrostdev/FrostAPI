@@ -252,7 +252,7 @@ public class Config {
         return getConfig().isConfigurationSection(path);
     }
 
-    public void set(String path, String value) {
+    public void set(String path, Object value) {
         getConfig().set(path, value);
     }
 
