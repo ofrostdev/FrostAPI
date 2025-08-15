@@ -16,17 +16,18 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class AsyncEventDispatcher implements Listener {
 
+    private static Plugin plugin;
+
     private static final ConcurrentHashMap<Class<? extends Event>, CopyOnWriteArrayList<EventHandler<?>>> handlers = new ConcurrentHashMap<>();
     private static final Set<Class<? extends Event>> registeredEvents = ConcurrentHashMap.newKeySet();
     private static final CopyOnWriteArrayList<MultiEventHandler> multiHandlers = new CopyOnWriteArrayList<>();
     private static final ConcurrentHashMap<Class<? extends Event>, CopyOnWriteArrayList<MultiEventHandler>> multiEventMap = new ConcurrentHashMap<>();
-
     private static final Listener EMPTY_LISTENER = new Listener() {};
-    private static Plugin plugin;
 
-    public static void init(Plugin plugin) {
-        if (AsyncEventDispatcher.plugin != null) return;
-        AsyncEventDispatcher.plugin = plugin;
+    public static void init(Plugin p) {
+        if (plugin != null) return;
+        if (p == null) throw new IllegalArgumentException("[FrostAPI] AsyncEventDispatcher -> Plugin não pode ser nulo!");
+        plugin = p;
     }
 
     public static void registerHandlers(EventHandler<? extends Event>... eventHandlers) {
@@ -43,14 +44,10 @@ public class AsyncEventDispatcher implements Listener {
 
     @SuppressWarnings("unchecked")
     public static <T extends Event> void register(EventHandler<T> handler) {
-        if (plugin == null) {
-            throw new IllegalStateException("[FrostAPI] AsyncEventDispatcher -> Registre FrostAPI.enable(Plugin plugin) na main!");
-        }
+        if (plugin == null) throw new IllegalStateException("[FrostAPI] AsyncEventDispatcher -> Registre FrostAPI.enable(Plugin plugin) na main!");
 
         Class<T> eventClass = handler.getEventType();
-        if (eventClass == null) {
-            throw new IllegalArgumentException("EventHandler.getEventType() retornou null.");
-        }
+        if (eventClass == null) throw new IllegalArgumentException("[FrostAPI] EventHandler.getEventType() retornou null.");
 
         handlers.computeIfAbsent(eventClass, k -> new CopyOnWriteArrayList<>()).add(handler);
 
@@ -62,16 +59,7 @@ public class AsyncEventDispatcher implements Listener {
                     EMPTY_LISTENER,
                     EventPriority.NORMAL,
                     (listener, event) -> {
-                        if (eventClass.isInstance(event)) {
-                            dispatch(event);
-
-                            List<MultiEventHandler> multiList = multiEventMap.get(eventClass);
-                            if (multiList != null) {
-                                for (MultiEventHandler multiHandler : multiList) {
-                                    multiHandler.handle(event);
-                                }
-                            }
-                        }
+                        if (eventClass.isInstance(event)) dispatch(event);
                     },
                     plugin
             );
@@ -79,9 +67,7 @@ public class AsyncEventDispatcher implements Listener {
     }
 
     public static void register(MultiEventHandler multiHandler) {
-        if (plugin == null) {
-            throw new IllegalStateException("[FrostAPI] AsyncEventDispatcher -> Registre FrostAPI.enable(Plugin plugin) na main!");
-        }
+        if (plugin == null) throw new IllegalStateException("[FrostAPI] AsyncEventDispatcher -> Registre FrostAPI.enable(Plugin plugin) na main!");
 
         multiHandlers.add(multiHandler);
 
@@ -96,16 +82,7 @@ public class AsyncEventDispatcher implements Listener {
                         EMPTY_LISTENER,
                         EventPriority.NORMAL,
                         (listener, event) -> {
-                            if (eventClass.isInstance(event)) {
-                                dispatch(event);
-
-                                List<MultiEventHandler> multiList = multiEventMap.get(eventClass);
-                                if (multiList != null) {
-                                    for (MultiEventHandler handler1 : multiList) {
-                                        handler1.handle(event);
-                                    }
-                                }
-                            }
+                            if (eventClass.isInstance(event)) dispatch(event);
                         },
                         plugin
                 );
@@ -132,23 +109,20 @@ public class AsyncEventDispatcher implements Listener {
         if (multiList != null) {
             for (MultiEventHandler multiHandler : multiList) {
                 for (Class<? extends Event> type : multiHandler.getEventTypes()) {
-                    if (type.isInstance(event)) {
-                        multiHandler.handle(event);
-                    }
+                    if (type.isInstance(event)) multiHandler.handle(event);
                 }
             }
         }
     }
 
-
     private static void validateEventClass(Class<? extends Event> eventClass) {
         try {
             Method method = eventClass.getMethod("getHandlerList");
             if (!java.lang.reflect.Modifier.isStatic(method.getModifiers())) {
-                throw new IllegalArgumentException("getHandlerList não é estático em " + eventClass.getName());
+                throw new IllegalArgumentException("[FrostAPI] getHandlerList não é estático em " + eventClass.getName());
             }
         } catch (NoSuchMethodException e) {
-            throw new IllegalArgumentException("Evento " + eventClass.getName() + " não possui getHandlerList()");
+            throw new IllegalArgumentException("[FrostAPI] Evento " + eventClass.getName() + " não possui getHandlerList()");
         }
     }
 }

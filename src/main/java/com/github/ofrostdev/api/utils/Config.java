@@ -18,22 +18,20 @@ public class Config {
     private File configFile;
     private FileConfiguration fileConfiguration;
 
-    public static void init(Plugin plugin) {
-        if (Config.plugin != null) return;
-        Config.plugin = plugin;
+    public static void init(Plugin p) {
+        if (plugin != null) return;
+        if (p == null) throw new IllegalArgumentException("[FrostAPI] Config -> Plugin não pode ser nulo!");
+        plugin = p;
     }
 
     public Config(String fileName) {
         if (plugin == null)
-            throw new IllegalArgumentException("[FrostAPI] Config -> Registre o plugin com Config.init(plugin)!");
-
+            throw new IllegalStateException("[FrostAPI] Config -> Chame FrostAPI.enable(this) primeiro!");
         this.fileName = fileName;
         this.configFile = new File(plugin.getDataFolder(), fileName);
 
         saveDefaultConfig();
-
         this.fileConfiguration = YamlConfiguration.loadConfiguration(this.configFile);
-
         reloadDefaults();
     }
 
@@ -257,4 +255,13 @@ public class Config {
     public void set(String path, String value) {
         getConfig().set(path, value);
     }
+
+    public void setList(String path, List<String> list) {
+        if (list == null || list.isEmpty()) {
+            getConfig().set(path, null);
+        } else {
+            getConfig().set(path, list);
+        }
+    }
+
 }

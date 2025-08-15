@@ -30,17 +30,17 @@ public abstract class TaskController {
         this.intervalTicks = intervalTicks;
     }
 
-    public static void init(Plugin plugin){
-        if(TaskController.plugin != null)return;
-        TaskController.plugin=plugin;
+    public static void init(Plugin p) {
+        if (plugin != null) return;
+        if (p == null) throw new IllegalArgumentException("[FrostAPI] TaskController -> Plugin não pode ser nulo!");
+        plugin = p;
     }
 
     public abstract void handle();
 
     public void start() {
-
         if (plugin == null) {
-            throw new IllegalArgumentException("[FrostAPI] TaskController -> Registre com.github.ofrostdev.api.FrostAPI.enable(Plugin plugin) na main!");
+            throw new IllegalArgumentException("[FrostAPI] TaskController -> Registre FrostAPI.enable(Plugin plugin) na main!");
         }
 
         if (running.get()) return;

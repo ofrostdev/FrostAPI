@@ -17,21 +17,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Builder para facilitar o envio de mensagens no ActionBar em servidores Spigot 1.8.8.
- * Suporta mensagens com cores, placeholders e envio temporizado.
- *
- * <p>Uso:</p>
- * <pre>{@code
- * ActionBarBuilder.of("&aOlá &b%player%!")
- *     .replace("%player%", player.getName())
- *     .colorize()
- *     .sound(Sound.VILLAGER_YES)
- *     .send(player);
- * }</pre>
- *
- * @author Alvaro Borges (Cyranox)
- */
 public final class ActionBar {
 
     private static Plugin plugin;
@@ -43,28 +28,16 @@ public final class ActionBar {
         this.message = message;
     }
 
-    public static void init(Plugin plugin) {
-        if (ActionBar.plugin != null) return;
-        ActionBar.plugin = plugin;
+    public static void init(Plugin p) {
+        if (plugin != null) return;
+        if (p == null) throw new IllegalArgumentException("[FrostAPI] ActionBar -> Plugin não pode ser nulo!");
+        plugin = p;
     }
 
-    /**
-     * Cria uma nova instância do builder com a mensagem fornecida.
-     *
-     * @param message Texto base com ou sem cores.
-     * @return Instância do builder.
-     */
     public static ActionBar of(String message) {
         return new ActionBar(message);
     }
 
-    /**
-     * Substitui um texto alvo por outro.
-     *
-     * @param target Texto a ser substituído.
-     * @param replacement Novo texto.
-     * @return Instância atualizada do builder.
-     */
     public ActionBar replace(String target, String replacement) {
         if (target != null && replacement != null) {
             message = message.replace(target, replacement);
@@ -72,32 +45,16 @@ public final class ActionBar {
         return this;
     }
 
-    /**
-     * Converte os códigos de cores (&) para (§) utilizados no Minecraft.
-     *
-     * @return Instância atualizada do builder.
-     */
     public ActionBar colorize() {
         message = message.replaceAll("(?i)&([0-9a-fk-or])", "§$1");
         return this;
     }
 
-    /**
-     * Define um som a ser tocado ao enviar a ActionBar.
-     *
-     * @param sound Som do pacote {@link Sound}.
-     * @return Instância atualizada do builder.
-     */
     public ActionBar sound(Sound sound) {
         this.sound = sound;
         return this;
     }
 
-    /**
-     * Envia a mensagem ao jogador.
-     *
-     * @param player Jogador alvo.
-     */
     public void send(Player player) {
         if (player == null || !player.isOnline()) return;
 
@@ -108,64 +65,31 @@ public final class ActionBar {
         if (sound != null) {
             player.playSound(player.getLocation(), sound, 1.0f, 1.0f);
         }
-
     }
 
-    /**
-     * Envia a mensagem ao jogador por vários segundos.
-     *
-     * @param player Jogador alvo.
-     * @param seconds Duração em segundos.
-     */
     public void send(Player player, int seconds) {
-        if (plugin == null) {
-            throw new IllegalArgumentException("[FrostAPI] ActionBar -> Registre com.github.ofrostdev.api.FrostAPI.enable(Plugin plugin) na main!");
-        }
+        if (plugin == null) throw new IllegalArgumentException("[FrostAPI] ActionBar -> Registre FrostAPI.enable(Plugin plugin) na main!");
         if (player == null || seconds <= 0) return;
         runRepeatedly(plugin, seconds, () -> send(player));
     }
 
-
-    /**
-     * Envia a mensagem para vários jogadores.
-     *
-     * @param players Coleção de jogadores.
-     */
     public void send(Collection<? extends Player> players) {
         players.forEach(this::send);
     }
 
-    /**
-     * Envia para todos os jogadores online.
-     */
     public void broadcast() {
         send(Bukkit.getOnlinePlayers());
     }
 
-    /**
-     * Envia a mensagem a todos online por vários segundos.
-     *
-     * @param plugin Plugin executor.
-     * @param seconds Duração em segundos.
-     */
-    public void broadcast(Plugin plugin, int seconds) {
+    public void broadcast(int seconds) {
         if (plugin == null || seconds <= 0) return;
         runRepeatedly(plugin, seconds, this::broadcast);
     }
 
     public static final Map<UUID, BukkitTask> activeTasks = new ConcurrentHashMap<>();
 
-    /**
-     * Envia a mensagem no estilo "máquina de escrever" (caractere por caractere) no ActionBar.
-     *
-     * @param player Jogador alvo.
-     * @param text Mensagem a ser escrita.
-     * @param delay Delay entre os caracteres (em ticks, 20 ticks = 1 segundo).
-     */
     public void sendTypewriter(Player player, String text, int delay) {
-        if (plugin == null) {
-            throw new IllegalArgumentException("[FrostAPI] ActionBar -> Registre com.github.ofrostdev.api.FrostAPI.enable(Plugin plugin) na main!");
-        }
+        if (plugin == null) throw new IllegalArgumentException("[FrostAPI] ActionBar -> Registre FrostAPI.enable(Plugin plugin) na main!");
         if (player == null || text == null || text.isEmpty()) return;
 
         UUID uuid = player.getUniqueId();
@@ -202,7 +126,7 @@ public final class ActionBar {
         activeTasks.put(uuid, task);
     }
 
-    private void runRepeatedly(Plugin plugin, int seconds, Runnable action) {
+    private void runRepeatedly(Plugin p, int seconds, Runnable action) {
         new BukkitRunnable() {
             int count = seconds;
             @Override
@@ -210,6 +134,6 @@ public final class ActionBar {
                 if (count-- <= 0) cancel();
                 else action.run();
             }
-        }.runTaskTimer(plugin, 0L, 20L);
+        }.runTaskTimer(p, 0L, 20L);
     }
 }

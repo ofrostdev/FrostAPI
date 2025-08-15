@@ -32,9 +32,10 @@ public final class Event {
         }
     }
 
-    public static void init(Plugin plugin) {
-        if (Event.plugin != null) return;
-        Event.plugin = plugin;
+    public static void init(Plugin p) {
+        if (plugin != null) return;
+        if (p == null) throw new IllegalArgumentException("[FrostAPI] Plugin não pode ser nulo!");
+        plugin = p;
     }
 
     public static <E extends org.bukkit.event.Event> void handle(Class<E> eventClass, Consumer<E> callback) {
@@ -50,7 +51,7 @@ public final class Event {
     }
 
     public static <E extends org.bukkit.event.Event> void handle(Class<E> eventClass, Consumer<E> callback, boolean keepListener, EventPriority priority) {
-        if (plugin == null) throw new IllegalStateException("[FrostAPI] Event -> Registre FrostAPI.enable(Plugin plugin) na main!");
+        if (plugin == null) throw new IllegalStateException("[FrostAPI] Chame Event.init(plugin) antes de registrar eventos!");
 
         globalCallbacks.computeIfAbsent(eventClass, k -> new CopyOnWriteArrayList<>()).add(new CallbackWrapper<>(callback, keepListener));
 
@@ -73,7 +74,7 @@ public final class Event {
                                         callbacks.remove(wrapper);
                                     }
                                 } catch (Exception ex) {
-                                    Bukkit.getLogger().warning("[FrostAPI] Exceção em callback global de evento: " + ex.getMessage());
+                                    Bukkit.getLogger().warning("[FrostAPI] Exceção em callback global: " + ex.getMessage());
                                     ex.printStackTrace();
                                 }
                                 if (callbacks.isEmpty()) {
@@ -102,7 +103,7 @@ public final class Event {
     }
 
     public static <E extends org.bukkit.event.Event> void handle(Class<E> eventClass, Player player, Consumer<E> callback, boolean keepListener, EventPriority priority) {
-        if (plugin == null) throw new IllegalStateException("[FrostAPI] Event -> Registre FrostAPI.enable(Plugin plugin) na main!");
+        if (plugin == null) throw new IllegalStateException("[FrostAPI] Chame Event.init(plugin) antes de registrar eventos!");
 
         UUID uuid = player.getUniqueId();
 
@@ -131,7 +132,7 @@ public final class Event {
                                             global.remove(wrapper);
                                         }
                                     } catch (Exception ex) {
-                                        Bukkit.getLogger().warning("[FrostAPI] Exceção em callback global de evento: " + ex.getMessage());
+                                        Bukkit.getLogger().warning("[FrostAPI] Exceção em callback global: " + ex.getMessage());
                                         ex.printStackTrace();
                                     }
                                 }
@@ -175,7 +176,6 @@ public final class Event {
         });
     }
 
-
     public static void cancel(Player player) {
         playerCallbacks.remove(player.getUniqueId());
     }
@@ -190,7 +190,6 @@ public final class Event {
 
     public static void cancel(Player player, Class<? extends org.bukkit.event.Event> eventClass) {
         UUID uuid = player.getUniqueId();
-
         Map<Class<? extends org.bukkit.event.Event>, CopyOnWriteArrayList<CallbackWrapper<? extends org.bukkit.event.Event>>> events = playerCallbacks.get(uuid);
         if (events == null) return;
 
@@ -200,6 +199,5 @@ public final class Event {
             playerCallbacks.remove(uuid);
         }
     }
-
 
 }

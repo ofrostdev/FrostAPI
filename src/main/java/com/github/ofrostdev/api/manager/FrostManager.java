@@ -7,30 +7,34 @@ public class FrostManager {
 
     private static Plugin plugin;
 
-    public static void init(Plugin plugin) {
-        if (FrostManager.plugin != null) return;
-        FrostManager.plugin = plugin;
+    public static void init(Plugin p) {
+        if (plugin != null) return;
+        if (p == null) throw new IllegalArgumentException("[FrostAPI] FrostManager -> Plugin não pode ser nulo!");
+        plugin = p;
     }
 
-    public static boolean hasPlugin(Plugin plugin){
-        if (plugin == null) return false;
-        Plugin found = Bukkit.getPluginManager().getPlugin(plugin.getName());
+    public static boolean hasPlugin(Plugin p){
+        if (p == null) return false;
+        Plugin found = Bukkit.getPluginManager().getPlugin(p.getName());
         return found != null && found.isEnabled();
     }
 
     public static boolean hasPlugin(String name){
         if (name == null || name.isEmpty()) return false;
-        Plugin plugin = Bukkit.getPluginManager().getPlugin(name);
-        return plugin != null && plugin.isEnabled();
+        Plugin found = Bukkit.getPluginManager().getPlugin(name);
+        return found != null && found.isEnabled();
     }
 
     public static boolean hasPluginClass(String clazz){
         try {
-            Class.forName("br.com.ystoreplugins.product.ypesca.event.PescaFishEvent");
+            Class.forName(clazz);
             return true;
         } catch (ClassNotFoundException ignored) {
             return false;
         }
     }
 
+    public static Plugin getPluginInstance() {
+        return plugin;
+    }
 }

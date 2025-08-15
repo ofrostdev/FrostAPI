@@ -13,41 +13,34 @@ import java.util.*;
 
 public class SyncEventDispatcher implements Listener {
 
+    private static Plugin plugin;
+
     private static final Map<Class<? extends Event>, List<EventHandler<?>>> handlers = new HashMap<>();
     private static final Set<Class<? extends Event>> registeredEvents = new HashSet<>();
     private static final List<MultiEventHandler> multiHandlers = new ArrayList<>();
     private static final Map<Class<? extends Event>, List<MultiEventHandler>> multiEventMap = new HashMap<>();
-
     private static final Listener EMPTY_LISTENER = new Listener() {};
-    private static Plugin plugin;
 
-    public static void init(Plugin plugin) {
-        if (SyncEventDispatcher.plugin != null) return;
-        SyncEventDispatcher.plugin = plugin;
+    public static void init(Plugin p) {
+        if (plugin != null) return;
+        if (p == null) throw new IllegalArgumentException("[FrostAPI] SyncEventDispatcher -> Plugin não pode ser nulo!");
+        plugin = p;
     }
 
     public static void registerHandlers(EventHandler<? extends Event>... eventHandlers) {
-        for (EventHandler<? extends Event> handler : eventHandlers) {
-            register(handler);
-        }
+        for (EventHandler<? extends Event> handler : eventHandlers) register(handler);
     }
 
     public static void registerMultiHandlers(MultiEventHandler... multiEventHandlers) {
-        for (MultiEventHandler handler : multiEventHandlers) {
-            register(handler);
-        }
+        for (MultiEventHandler handler : multiEventHandlers) register(handler);
     }
 
     @SuppressWarnings("unchecked")
     public static <T extends Event> void register(EventHandler<T> handler) {
-        if (plugin == null) {
-            throw new IllegalStateException("[FrostAPI] EventDispatcher -> Registre com.github.ofrostdev.api.FrostAPI.enable(Plugin plugin) na main!");
-        }
+        if (plugin == null) throw new IllegalStateException("[FrostAPI] SyncEventDispatcher -> Registre FrostAPI.enable(Plugin plugin) na main!");
 
         Class<T> eventClass = handler.getEventType();
-        if (eventClass == null) {
-            throw new IllegalArgumentException("EventHandler.getEventType() retornou null.");
-        }
+        if (eventClass == null) throw new IllegalArgumentException("[FrostAPI] EventHandler.getEventType() retornou null.");
 
         handlers.computeIfAbsent(eventClass, k -> new ArrayList<>()).add(handler);
 
@@ -63,9 +56,7 @@ public class SyncEventDispatcher implements Listener {
                             dispatch(event);
                             List<MultiEventHandler> multiList = multiEventMap.get(eventClass);
                             if (multiList != null) {
-                                for (MultiEventHandler handler1 : multiList) {
-                                    handler1.handle(event);
-                                }
+                                for (MultiEventHandler h : multiList) h.handle(event);
                             }
                         }
                     },
@@ -75,9 +66,7 @@ public class SyncEventDispatcher implements Listener {
     }
 
     public static void register(MultiEventHandler multiHandler) {
-        if (plugin == null) {
-            throw new IllegalStateException("[FrostAPI] EventDispatcher -> Registre com.github.ofrostdev.api.FrostAPI.enable(Plugin plugin) na main!");
-        }
+        if (plugin == null) throw new IllegalStateException("[FrostAPI] SyncEventDispatcher -> Registre FrostAPI.enable(Plugin plugin) na main!");
 
         multiHandlers.add(multiHandler);
 
@@ -96,9 +85,7 @@ public class SyncEventDispatcher implements Listener {
                                 dispatch(event);
                                 List<MultiEventHandler> multiList = multiEventMap.get(eventClass);
                                 if (multiList != null) {
-                                    for (MultiEventHandler handler1 : multiList) {
-                                        handler1.handle(event);
-                                    }
+                                    for (MultiEventHandler h : multiList) h.handle(event);
                                 }
                             }
                         },
@@ -111,15 +98,14 @@ public class SyncEventDispatcher implements Listener {
     @SuppressWarnings("unchecked")
     private static <T extends Event> void dispatch(T event) {
         List<EventHandler<?>> eventHandlers = handlers.get(event.getClass());
-        if (eventHandlers == null) return;
-
-        for (EventHandler<?> handler : eventHandlers) {
-            Class<?> handlerType = handler.getEventType();
-            if (handlerType.isInstance(event)) {
-                try {
-                    ((EventHandler<T>) handler).handle(event);
-                } catch (ClassCastException e) {
-                    Bukkit.getLogger().warning("[FrostAPI] Erro ao despachar evento: " + e.getMessage());
+        if (eventHandlers != null) {
+            for (EventHandler<?> handler : eventHandlers) {
+                if (handler.getEventType().isInstance(event)) {
+                    try {
+                        ((EventHandler<T>) handler).handle(event);
+                    } catch (ClassCastException e) {
+                        Bukkit.getLogger().warning("[FrostAPI] Erro ao despachar evento: " + e.getMessage());
+                    }
                 }
             }
         }
@@ -128,9 +114,7 @@ public class SyncEventDispatcher implements Listener {
         if (multiList != null) {
             for (MultiEventHandler handler : multiList) {
                 for (Class<? extends Event> type : handler.getEventTypes()) {
-                    if (type.isInstance(event)) {
-                        handler.handle(event);
-                    }
+                    if (type.isInstance(event)) handler.handle(event);
                 }
             }
         }
@@ -140,10 +124,10 @@ public class SyncEventDispatcher implements Listener {
         try {
             Method method = eventClass.getMethod("getHandlerList");
             if (!java.lang.reflect.Modifier.isStatic(method.getModifiers())) {
-                throw new IllegalArgumentException("getHandlerList não é estático em " + eventClass.getName());
+                throw new IllegalArgumentException("[FrostAPI] getHandlerList não é estático em " + eventClass.getName());
             }
         } catch (NoSuchMethodException e) {
-            throw new IllegalArgumentException("Evento " + eventClass.getName() + " não possui getHandlerList()");
+            throw new IllegalArgumentException("[FrostAPI] Evento " + eventClass.getName() + " não possui getHandlerList()");
         }
     }
 }
