@@ -88,7 +88,7 @@ fun ItemBuilder.dsl(block: ItemBuilder.() -> Unit): ItemStack {
     return this.build()
 }
 
-fun ItemBuilderDSL(material: Material, block: ItemBuilder.() -> Unit): ItemStack {
+fun itemBuilder(material: Material, block: ItemBuilder.() -> Unit): ItemStack {
     val builder = ItemBuilder(material)
     builder.block()
     return builder.build()
