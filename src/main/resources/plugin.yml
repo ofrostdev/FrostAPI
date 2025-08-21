@@ -2,3 +2,5 @@ name: FrostAPI
 version: '2.2-kde38o38'
 main: com.github.ofrostdev.api.FrostAPI
 load: STARTUP
+softdepend:
+  - PlaceholderAPI
