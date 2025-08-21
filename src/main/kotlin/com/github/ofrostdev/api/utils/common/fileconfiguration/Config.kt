@@ -6,49 +6,51 @@ import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
 import java.io.IOException
+import java.io.InputStreamReader
 
 class Config(private val plugin: JavaPlugin, private val fileName: String) {
     private val file: File = File(plugin.dataFolder, fileName)
-    private var fileConfiguration: FileConfiguration = YamlConfiguration.loadConfiguration(file).also { reloadDefaults() }
+    private var fileConfiguration: FileConfiguration = YamlConfiguration()
+
+    init {
+        saveDefaultConfig()
+        reloadConfig()
+    }
 
     private fun reloadDefaults() {
-        plugin.getResource(fileName)?.let {
-            val defConfig = YamlConfiguration.loadConfiguration(it)
-            fileConfiguration.defaults = defConfig
+        plugin.getResource(fileName)?.let { stream ->
+            val defaultConfig = YamlConfiguration.loadConfiguration(InputStreamReader(stream))
+            (fileConfiguration as YamlConfiguration).setDefaults(defaultConfig)
         }
     }
 
     fun saveDefaultConfig() {
-        try {
-            if (!plugin.dataFolder.exists() && !plugin.dataFolder.mkdirs()) plugin.logger.warning("could not create a plugin folder!")
-            if (!file.exists()) {
-                file.parentFile?.takeIf { !it.exists() }?.apply { if (!mkdirs()) plugin.logger.severe("could not create directory for file: $fileName") }
-                plugin.getResource(fileName)?.let { plugin.saveResource(fileName, false) }
-                if (!file.exists() && !file.createNewFile()) plugin.logger.warning("failed to create file: $fileName")
-            }
-        } catch (e: Exception) {
-            plugin.logger.severe("error creating configuration file: $fileName")
-            e.printStackTrace()
+        if (!plugin.dataFolder.exists() && !plugin.dataFolder.mkdirs())
+            plugin.logger.warning("Could not create plugin folder!")
+
+        if (!file.exists()) {
+            plugin.getResource(fileName)?.let { plugin.saveResource(fileName, false) }
+            if (!file.exists() && !file.createNewFile())
+                plugin.logger.warning("Failed to create file: $fileName")
         }
     }
 
     fun reloadConfig() {
         fileConfiguration = YamlConfiguration.loadConfiguration(file)
-        plugin.getResource(fileName)?.let {
-            val defConfig = YamlConfiguration.loadConfiguration(it)
-            (fileConfiguration as YamlConfiguration).defaults = defConfig
-        }
+        reloadDefaults()
     }
 
     fun saveConfig() {
-        try { fileConfiguration.save(file) } catch (e: IOException) { plugin.logger.severe("could not save configuration file: $fileName"); e.printStackTrace() }
+        try {
+            fileConfiguration.save(file)
+        } catch (e: IOException) {
+            plugin.logger.severe("Could not save configuration file: $fileName")
+            e.printStackTrace()
+        }
     }
 
     val config: FileConfiguration
-        get() {
-            if (fileConfiguration == null) reloadConfig()
-            return fileConfiguration
-        }
+        get() = fileConfiguration
 
     fun dsl(block: ConfigDSL.() -> Unit) = ConfigDSL(this).apply(block)
 

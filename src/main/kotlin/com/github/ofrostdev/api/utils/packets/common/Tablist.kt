@@ -54,9 +54,8 @@ class Tablist(private val player: Player) {
         PacketUtils.sendPacket(player, packet)
     }
 
-    fun broadcast() {
-        Bukkit.getOnlinePlayers().forEach { Tablist(it).header(*headerLines.toTypedArray()).footer(*footerLines.toTypedArray()).send() }
-    }
+    private fun convertListToString(list: List<String>) =
+        list.joinToString("\n") { ChatColor.translateAlternateColorCodes('&', it) }
 }
 
 fun tablist(player: Player, block: Tablist.() -> Unit) {
