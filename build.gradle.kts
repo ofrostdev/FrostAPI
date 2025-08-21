@@ -27,6 +27,7 @@ dependencies {
 
 tasks {
   shadowJar {
+      archiveClassifier.set("")
       mergeServiceFiles()
       relocate("kotlin", "com.github.ofrostdev.api.libs.kotlin")
       relocate("me.saiintbrisson", "com.github.ofrostdev.api.libs.saiintbrisson")
