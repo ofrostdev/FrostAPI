@@ -31,7 +31,6 @@ tasks {
         archiveClassifier.set("")
         mergeServiceFiles()
 
-        relocate("kotlin", "com.github.ofrostdev.api.libs.kotlin")
         relocate("me.saiintbrisson", "com.github.ofrostdev.api.libs.saiintbrisson")
         relocate("com.henryfabio", "com.github.ofrostdev.api.libs.henryfabio")
         relocate("com.cryptomorin", "com.github.ofrostdev.api.libs.cryptomorim")

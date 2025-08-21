@@ -6,49 +6,61 @@ import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import java.util.concurrent.CompletableFuture
 
-object TeleportUtils {
-    fun safeTeleport(player: Player?, location: Location?): Boolean {
-        if (player == null || location == null || location.world == null) return false
-        try {
-            player.teleport(location)
-            return true
-        } catch (e: Exception) {
-            return false
-        }
-    }
+@DslMarker
+annotation class TeleportDSL
 
-    fun safeTeleportAsync(player: Player?, location: Location?, plugin: Plugin?): CompletableFuture<Boolean> {
-        val future = CompletableFuture<Boolean>()
-        if (player == null || location == null || location.world == null) {
-            future.complete(false)
+object TeleportUtils {
+
+    class Builder(
+        private val player: Player?,
+        private val location: Location?,
+        private val plugin: Plugin?
+    ) {
+        var async: Boolean = false
+        var delay: Long = 0L
+        var loadChunk: Boolean = false
+
+        fun execute(): CompletableFuture<Boolean> {
+            if (player == null || location == null || location.world == null) {
+                return CompletableFuture.completedFuture(false)
+            }
+
+            val future = CompletableFuture<Boolean>()
+
+            val task = Runnable {
+                if (loadChunk) {
+                    val chunk = location.world.getChunkAt(location)
+                    if (!chunk.isLoaded) chunk.load()
+                }
+                val success = safeTeleport(player, location)
+                future.complete(success)
+            }
+
+            if (async) {
+                CompletableFuture.runAsync(task)
+            } else if (delay > 0) {
+                Bukkit.getScheduler().runTaskLater(plugin, task, delay)
+            } else {
+                task.run()
+            }
+
             return future
         }
-        Bukkit.getScheduler().runTask(plugin) { future.complete(safeTeleport(player, location)) }
-        return future
     }
 
-    fun teleportWithDelay(player: Player?, location: Location?, ticks: Long, plugin: Plugin?) {
-        if (player == null || location == null || location.world == null) return
-        Bukkit.getScheduler().runTaskLater(plugin, { safeTeleport(player, location) }, ticks)
-    }
-
-    fun teleportIfChunkLoaded(player: Player?, location: Location?, plugin: Plugin?) {
-        if (player == null || location == null || location.world == null) return
-        val chunk = location.world.getChunkAt(location)
-        if (!chunk.isLoaded) chunk.load()
-        safeTeleport(player, location)
-    }
-
-    fun teleportIfChunkLoadedAsync(player: Player?, location: Location?): CompletableFuture<Boolean> {
-        return CompletableFuture.supplyAsync {
-            if (player == null || location == null || location.world == null) return@supplyAsync false
-            val chunk = location.world.getChunkAt(location)
-            if (!chunk.isLoaded) chunk.load()
-            safeTeleport(player, location)
+    fun safeTeleport(player: Player?, location: Location?): Boolean {
+        if (player == null || location == null || location.world == null) return false
+        return try {
+            player.teleport(location)
+            true
+        } catch (_: Exception) {
+            false
         }
     }
 
-    fun teleportWithDelayIfChunkLoaded(player: Player?, location: Location?, ticks: Long, plugin: Plugin?) {
-        Bukkit.getScheduler().runTaskLater(plugin, { teleportIfChunkLoaded(player, location, plugin) }, ticks)
+    fun dsl(player: Player?, location: Location?, plugin: Plugin?, block: Builder.() -> Unit): CompletableFuture<Boolean> {
+        val builder = Builder(player, location, plugin)
+        builder.block()
+        return builder.execute()
     }
 }
