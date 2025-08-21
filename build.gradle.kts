@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version "2.0.0"
     id("com.gradleup.shadow") version "8.3.0"
+    `maven-publish`
 }
 
 group = "com.github.ofrostdev"
@@ -25,8 +26,23 @@ dependencies {
     implementation("com.github.LMS5413:inventory-api:main-SNAPSHOT")
 }
 
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            artifact(tasks.shadowJar) {
+                builtBy(tasks.shadowJar)
+            }
+            groupId = project.group.toString()
+            artifactId = "FrostAPI"
+            version = project.version.toString()
+        }
+    }
+}
+
 tasks {
-  shadowJar {
+
+
+    shadowJar {
       archiveClassifier.set("")
       mergeServiceFiles()
       relocate("kotlin", "com.github.ofrostdev.api.libs.kotlin")
