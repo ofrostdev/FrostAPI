@@ -42,6 +42,10 @@ object EventDispatch : Listener {
         }
     }
 
+    fun register(vararg handlers: EventHandler) {
+        handlers.forEach { register(it) }
+    }
+
     private fun dispatch(event: Event) {
         handlers[event::class.java]?.forEach { handler ->
             try {
