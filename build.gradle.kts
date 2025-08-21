@@ -18,12 +18,12 @@ repositories {
 
 dependencies {
     compileOnly(files("libs/spigot-1.8.8.jar"))
-    implementation("me.clip:placeholderapi:2.11.6")
+    compileOnly("me.clip:placeholderapi:2.11.6")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.8.0")
 
-    implementation("org.apache.commons:commons-lang3:3.12.0")
+    implementation("org.apache.commons:commons-lang3:3.18.0")
 
     implementation("com.github.ofrostdev:command-framework:main-SNAPSHOT")
     implementation("com.github.iDimaBR:sql-provider:main-SNAPSHOT")
@@ -39,12 +39,14 @@ tasks {
         relocate("com.henryfabio", "com.github.ofrostdev.api.libs.henryfabio")
         relocate("com.cryptomorin", "com.github.ofrostdev.api.libs.cryptomorim")
         relocate("com.zaxxer", "com.github.ofrostdev.api.libs.zaxxer")
-        relocate("com.zaxxer", "com.github.ofrostdev.api.libs.zaxxer")
+        relocate("net.kyori", "com.github.ofrostdev.api.libs.kyori")
+
+        relocate("org.apache.commons.lang3", "com.github.ofrostdev.api.libs.apache.commons.lang")
+
         relocate("org", "com.github.ofrostdev.api.libs") {
             exclude("org/bukkit/**")
             exclude("org/spigotmc/**")
         }
-        relocate("org.apache.commons.lang3", "com.github.ofrostdev.api.libs.apache.commons.lang")
     }
 
     jar {
