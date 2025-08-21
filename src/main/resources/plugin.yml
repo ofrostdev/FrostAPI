@@ -1,0 +1,4 @@
+name: FrostAPI
+version: '2.2-jdb18m18'
+main: com.github.ofrostdev.api.FrostAPI
+load: STARTUP
