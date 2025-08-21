@@ -1,6 +1,5 @@
 package com.github.ofrostdev.api
 
-import com.github.ofrostdev.api.events.EventDispatch
 import com.github.ofrostdev.api.utils.storage.DatabaseFactory
 import org.bukkit.Bukkit
 

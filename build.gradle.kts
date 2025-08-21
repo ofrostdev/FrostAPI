@@ -28,10 +28,12 @@ dependencies {
 tasks {
   shadowJar {
       mergeServiceFiles()
-      relocate("kotlin", "com.github.ofrostdev.frostapi/libs/kotlin")
-      relocate("me.saiintbrisson", "com.github.ofrostdev.frostapi/libs/saiintbrisson")
-      relocate("com.henryfabio.minecraft.inventoryapi", "com.github.ofrostdev.frostapi/libs/inventoryapi")
-      relocate("com.henryfabio", "com.github.ofrostdev.frostapi/libs/henryfabio")
+      relocate("kotlin", "com.github.ofrostdev.api.libs.kotlin")
+      relocate("me.saiintbrisson", "com.github.ofrostdev.api.libs.saiintbrisson")
+      relocate("com.henryfabio", "com.github.ofrostdev.api.libs.henryfabio")
+      relocate("com.cryptomorin", "com.github.ofrostdev.api.libs.cryptomorim")
+      relocate("com.zaxxer", "com.github.ofrostdev.api.libs.zaxxer")
+      relocate("org", "com.github.ofrostdev.api.libs")
   }
 }
 
