@@ -1,4 +1,5 @@
 .gradle/
 build/
 .idea/
-listener_fixed.zip
+.gitattributes
+.gitignore
