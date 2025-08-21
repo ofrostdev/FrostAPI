@@ -26,6 +26,45 @@ dependencies {
     implementation("com.github.LMS5413:inventory-api:main-SNAPSHOT")
 }
 
+tasks {
+    shadowJar {
+        archiveClassifier.set("")
+        mergeServiceFiles()
+
+        relocate("kotlin", "com.github.ofrostdev.api.libs.kotlin")
+        relocate("me.saiintbrisson", "com.github.ofrostdev.api.libs.saiintbrisson")
+        relocate("com.henryfabio", "com.github.ofrostdev.api.libs.henryfabio")
+        relocate("com.cryptomorin", "com.github.ofrostdev.api.libs.cryptomorim")
+        relocate("com.zaxxer", "com.github.ofrostdev.api.libs.zaxxer")
+        relocate("org", "com.github.ofrostdev.api.libs") {
+            exclude("org/bukkit/**")
+            exclude("org/spigotmc/**")
+        }
+    }
+
+    jar {
+        enabled = false
+    }
+
+    build {
+        dependsOn(shadowJar)
+    }
+
+    processResources {
+        val props = mapOf("version" to version)
+        inputs.properties(props)
+        filteringCharset = "UTF-8"
+        filesMatching("plugin.yml") {
+            expand(props)
+        }
+    }
+}
+
+val targetJavaVersion = 8
+kotlin {
+    jvmToolchain(targetJavaVersion)
+}
+
 publishing {
     publications {
         create<MavenPublication>("maven") {
@@ -36,45 +75,5 @@ publishing {
             artifactId = "FrostAPI"
             version = project.version.toString()
         }
-    }
-}
-
-tasks {
-
-
-    shadowJar {
-      archiveClassifier.set("")
-      mergeServiceFiles()
-
-      exclude("org/spigotmc/**")
-      exclude("org/bukkit/**")
-
-      relocate("kotlin", "com.github.ofrostdev.api.libs.kotlin")
-      relocate("me.saiintbrisson", "com.github.ofrostdev.api.libs.saiintbrisson")
-      relocate("com.henryfabio", "com.github.ofrostdev.api.libs.henryfabio")
-      relocate("com.cryptomorin", "com.github.ofrostdev.api.libs.cryptomorim")
-      relocate("com.zaxxer", "com.github.ofrostdev.api.libs.zaxxer")
-      relocate("org", "com.github.ofrostdev.api.libs")
-  }
-    jar{
-        enabled = false
-    }
-}
-
-val targetJavaVersion = 8
-kotlin {
-    jvmToolchain(targetJavaVersion)
-}
-
-tasks.build {
-    dependsOn("shadowJar")
-}
-
-tasks.processResources {
-    val props = mapOf("version" to version)
-    inputs.properties(props)
-    filteringCharset = "UTF-8"
-    filesMatching("plugin.yml") {
-        expand(props)
     }
 }

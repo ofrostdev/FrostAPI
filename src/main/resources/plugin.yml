@@ -1,4 +1,4 @@
 name: FrostAPI
-version: '2.2-kde28c38'
+version: '2.2-kde18c38'
 main: com.github.ofrostdev.api.FrostAPI
 load: STARTUP
