@@ -59,9 +59,6 @@ class FrostAPI : JavaPlugin() {
 
     override fun onEnable() {
         // Plugin startup logic
-
-        EventDispatch.enable(this)
-
         UpdateChecker(this, "ofrostdev", "frostapi").check(file)
     }
 
