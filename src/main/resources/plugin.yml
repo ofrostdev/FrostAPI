@@ -1,4 +1,4 @@
 name: FrostAPI
-version: '2.2-jdx18m38'
+version: '2.2-jdx38m38'
 main: com.github.ofrostdev.api.FrostAPI
 load: STARTUP

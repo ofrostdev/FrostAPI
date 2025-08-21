@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly(files("../libs/spigot-1.8.8.jar"))
+    compileOnly(files("libs/spigot-1.8.8.jar"))
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.8.0")
