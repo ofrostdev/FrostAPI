@@ -45,6 +45,10 @@ tasks {
     shadowJar {
       archiveClassifier.set("")
       mergeServiceFiles()
+
+      exclude("org/spigotmc/**")
+      exclude("org/bukkit/**")
+
       relocate("kotlin", "com.github.ofrostdev.api.libs.kotlin")
       relocate("me.saiintbrisson", "com.github.ofrostdev.api.libs.saiintbrisson")
       relocate("com.henryfabio", "com.github.ofrostdev.api.libs.henryfabio")
