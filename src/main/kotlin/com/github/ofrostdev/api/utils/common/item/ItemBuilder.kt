@@ -83,11 +83,9 @@ class ItemBuilder(private var item: ItemStack) {
         item = CraftItemStack.asBukkitCopy(nmsItem)
     }
 
-    fun ItemBuilder.setColor(color: Color) = apply {
-        val meta = item.itemMeta
-        if (meta is LeatherArmorMeta) {
-            meta.setColor(color)
-            item.itemMeta = meta
+    fun ItemBuilder.setDyeColor(dye: DyeColor) = apply {
+        if (item.type == Material.INK_SACK) {
+            item.durability = dye.woolData.toShort()
         }
     }
 
