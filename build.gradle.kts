@@ -35,6 +35,9 @@ tasks {
       relocate("com.zaxxer", "com.github.ofrostdev.api.libs.zaxxer")
       relocate("org", "com.github.ofrostdev.api.libs")
   }
+    jar{
+        enabled = false
+    }
 }
 
 val targetJavaVersion = 8
