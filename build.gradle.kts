@@ -14,16 +14,21 @@ repositories {
     }
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     maven("https://jitpack.io")
+    maven("https://repo.velocitypowered.com/releases/") {
+        name = "velocity-repo"
+    }
 }
 
 dependencies {
+
+    compileOnly("com.velocitypowered:velocity-api:3.1.2")
     compileOnly(files("libs/spigot-1.8.8.jar"))
     compileOnly("me.clip:placeholderapi:2.11.6")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.8.0")
 
-    implementation("org.apache.commons:commons-lang3:3.18.0")
+    implementation("commons-lang:commons-lang:2.6")
 
     implementation("com.github.ofrostdev:command-framework:main-SNAPSHOT")
     implementation("com.github.iDimaBR:sql-provider:main-SNAPSHOT")
@@ -41,7 +46,7 @@ tasks {
         relocate("com.zaxxer", "com.github.ofrostdev.api.libs.zaxxer")
         relocate("net.kyori", "com.github.ofrostdev.api.libs.kyori")
 
-        relocate("org.apache.commons.lang3", "com.github.ofrostdev.api.libs.apache.commons.lang")
+        relocate("org.apache", "com.github.ofrostdev.api.libs.apache")
 
         relocate("org", "com.github.ofrostdev.api.libs") {
             exclude("org/bukkit/**")

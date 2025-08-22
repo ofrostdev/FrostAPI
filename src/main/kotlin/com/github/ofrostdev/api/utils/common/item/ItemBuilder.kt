@@ -85,7 +85,7 @@ class ItemBuilder(private var item: ItemStack) {
 
     fun ItemBuilder.setDyeColor(dye: DyeColor) = apply {
         if (item.type == Material.INK_SACK) {
-            item.durability = dye.woolData.toShort()
+            item.durability = dye.dyeData.toShort()
         }
     }
 
