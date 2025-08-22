@@ -14,14 +14,10 @@ repositories {
     }
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     maven("https://jitpack.io")
-    maven("https://repo.velocitypowered.com/releases/") {
-        name = "velocity-repo"
-    }
 }
 
 dependencies {
 
-    compileOnly("com.velocitypowered:velocity-api:3.1.2")
     compileOnly(files("libs/spigot-1.8.8.jar"))
     compileOnly("me.clip:placeholderapi:2.11.6")
 
