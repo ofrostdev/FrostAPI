@@ -1,5 +1,5 @@
 name: FrostAPI
-version: '2.2-kfc29o38'
+version: '2.2-kfc88o38'
 main: com.github.ofrostdev.api.FrostAPI
 load: STARTUP
 softdepend:
