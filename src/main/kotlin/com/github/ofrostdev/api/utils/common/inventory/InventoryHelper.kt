@@ -64,6 +64,7 @@ object InventoryHelper {
 
     fun clearInventory(player: Player) {
         player.inventory.clear()
+        player.inventory.armorContents = arrayOfNulls(4)
     }
 
     fun containsAny(player: Player, vararg materials: Material): Boolean {
