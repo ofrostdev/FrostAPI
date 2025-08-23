@@ -13,7 +13,8 @@ object InventorySerializer {
         return ItemSerializer.encodeItems(allItems)
     }
 
-    fun decodeInventory(player: Player, base64: String) {
+    fun decodeInventory(player: Player, base64: String?) {
+        if (base64.isNullOrBlank()) return
         val allItems = ItemSerializer.decodeItems(base64) ?: return
 
         val inventory = player.inventory
@@ -21,8 +22,8 @@ object InventorySerializer {
         val contentsSize = allItems.size - armorSize
         if (contentsSize < 0) return
 
-        val contents = allItems.copyOfRange(0, contentsSize)
-        val armor = allItems.copyOfRange(contentsSize, allItems.size)
+        val contents = allItems.copyOfRange(0, contentsSize).map { it ?: null }.toTypedArray()
+        val armor = allItems.copyOfRange(contentsSize, allItems.size).map { it ?: null }.toTypedArray()
 
         inventory.contents = contents
         inventory.armorContents = armor
@@ -32,7 +33,8 @@ object InventorySerializer {
         return ItemSerializer.encodeItems(inventory.contents)
     }
 
-    fun decodeInventory(base64: String): Array<ItemStack?>? {
+    fun decodeInventory(base64: String?): Array<ItemStack?>? {
+        if (base64.isNullOrBlank()) return null
         return ItemSerializer.decodeItems(base64)
     }
 }

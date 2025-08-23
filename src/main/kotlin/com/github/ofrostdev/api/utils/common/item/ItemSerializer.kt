@@ -9,6 +9,7 @@ import java.io.IOException
 import java.util.*
 
 object ItemSerializer {
+
     fun encodeItem(item: ItemStack?): String? {
         try {
             ByteArrayOutputStream().use { baos ->
@@ -25,18 +26,21 @@ object ItemSerializer {
     }
 
     fun decodeItem(base64: String?): ItemStack? {
-        val data = Base64.getDecoder().decode(base64)
+        if (base64.isNullOrBlank()) return null
+        val data: ByteArray = try {
+            Base64.getDecoder().decode(base64)
+        } catch (e: IllegalArgumentException) {
+            e.printStackTrace()
+            return null
+        }
 
         try {
             ByteArrayInputStream(data).use { bais ->
                 BukkitObjectInputStream(bais).use { bois ->
-                    return bois.readObject() as ItemStack
+                    return bois.readObject() as? ItemStack
                 }
             }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            return null
-        } catch (e: ClassNotFoundException) {
+        } catch (e: Exception) {
             e.printStackTrace()
             return null
         }
@@ -61,24 +65,36 @@ object ItemSerializer {
     }
 
     fun decodeItems(base64: String?): Array<ItemStack?>? {
-        val data = Base64.getDecoder().decode(base64)
+        if (base64.isNullOrBlank()) return null
+        val data: ByteArray = try {
+            Base64.getDecoder().decode(base64)
+        } catch (e: IllegalArgumentException) {
+            e.printStackTrace()
+            return null
+        }
 
         try {
             ByteArrayInputStream(data).use { bais ->
                 BukkitObjectInputStream(bais).use { bois ->
-                    val size = bois.readInt()
-                    val items = arrayOfNulls<ItemStack>(size)
+                    val size = try {
+                        bois.readInt()
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                        return null
+                    }
 
+                    val items = arrayOfNulls<ItemStack>(size)
                     for (i in 0 until size) {
-                        items[i] = bois.readObject() as ItemStack
+                        try {
+                            items[i] = bois.readObject() as? ItemStack
+                        } catch (_: Exception) {
+                            items[i] = null
+                        }
                     }
                     return items
                 }
             }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            return null
-        } catch (e: ClassNotFoundException) {
+        } catch (e: Exception) {
             e.printStackTrace()
             return null
         }

@@ -58,6 +58,16 @@ object TeleportUtils {
         }
     }
 
+    fun safeTeleport(players: Collection<Player>?, location: Location?): Boolean {
+        if (players.isNullOrEmpty() || location == null || location.world == null) return false
+        var success = true
+        for (player in players) {
+            val teleported = safeTeleport(player, location)
+            if (!teleported) success = false
+        }
+        return success
+    }
+
     fun dsl(player: Player?, location: Location?, plugin: Plugin?, block: Builder.() -> Unit): CompletableFuture<Boolean> {
         val builder = Builder(player, location, plugin)
         builder.block()
