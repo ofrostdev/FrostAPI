@@ -10,22 +10,25 @@ import java.lang.reflect.Method
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 
-object EventDispatch : Listener {
+class EventDispatch private constructor(private val plugin: Plugin) : Listener {
 
-    private var plugin: Plugin? = null
+    companion object {
+        private val instances = ConcurrentHashMap<Plugin, EventDispatch>()
+
+        fun enable(plugin: Plugin): EventDispatch {
+            return instances.computeIfAbsent(plugin) { EventDispatch(it) }
+        }
+
+        fun get(plugin: Plugin): EventDispatch {
+            return instances[plugin] ?: throw IllegalStateException("EventDispatch for ${plugin.name} not enabled")
+        }
+    }
 
     private val handlers: ConcurrentHashMap<Class<out Event>, CopyOnWriteArrayList<EventHandler>> = ConcurrentHashMap()
     private val registeredEvents: MutableSet<Class<out Event>> = ConcurrentHashMap.newKeySet()
     private val EMPTY_LISTENER: Listener = object : Listener {}
 
-    fun enable(p: Plugin) {
-        require(plugin == null)
-        plugin = p
-    }
-
     fun register(handler: EventHandler) {
-        val pl = plugin ?: throw IllegalStateException("[FrostAPI] EventDispatcher instance is null!")
-
         for (eventClass in handler.eventTypes) {
             handlers.computeIfAbsent(eventClass) { CopyOnWriteArrayList() }.add(handler)
 
@@ -36,7 +39,7 @@ object EventDispatch : Listener {
                     EMPTY_LISTENER,
                     EventPriority.NORMAL,
                     { _, event -> dispatch(event) },
-                    pl
+                    plugin
                 )
             }
         }
