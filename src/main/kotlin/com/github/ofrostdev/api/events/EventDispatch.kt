@@ -28,7 +28,8 @@ class EventDispatch private constructor(private val plugin: Plugin) : Listener {
     private val EMPTY_LISTENER: Listener = object : Listener {}
 
     fun register(handler: EventHandler) {
-        for (eventClass in handler.eventTypes) {
+        for ((eventKClass, priority) in handler.eventPriorities) {
+            val eventClass = eventKClass.java
             handlers.computeIfAbsent(eventClass) { CopyOnWriteArrayList() }.add(handler)
 
             if (registeredEvents.add(eventClass)) {
@@ -36,9 +37,10 @@ class EventDispatch private constructor(private val plugin: Plugin) : Listener {
                 Bukkit.getPluginManager().registerEvent(
                     eventClass,
                     EMPTY_LISTENER,
-                    handler.priority,
+                    priority,
                     { _, event -> dispatch(event) },
-                    plugin
+                    plugin,
+                    true
                 )
             }
         }

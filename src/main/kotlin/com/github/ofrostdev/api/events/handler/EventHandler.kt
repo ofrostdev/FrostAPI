@@ -4,16 +4,16 @@ import org.bukkit.event.Event
 import org.bukkit.event.EventPriority
 import kotlin.reflect.KClass
 
-abstract class EventHandler(
-    vararg types: KClass<out Event>,
-    val priority: EventPriority = EventPriority.NORMAL
-) {
+abstract class EventHandler {
 
-    val eventTypes: Set<Class<out Event>> = if (types.isNotEmpty()) {
-        types.map { it.java }.toSet()
-    } else {
-        throw IllegalArgumentException("[FrostAPI] EventHandler has no more than 1 event!")
+    val eventPriorities: MutableMap<KClass<out Event>, EventPriority> = mutableMapOf()
+
+    protected fun registerEvent(event: KClass<out Event>, priority: EventPriority = EventPriority.NORMAL) {
+        eventPriorities[event] = priority
     }
+
+    val eventTypes: Set<Class<out Event>>
+        get() = eventPriorities.keys.map { it.java }.toSet()
 
     abstract fun handle(event: Event)
 }
