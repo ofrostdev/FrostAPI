@@ -1,9 +1,13 @@
 package com.github.ofrostdev.api.events.handler
 
 import org.bukkit.event.Event
+import org.bukkit.event.EventPriority
 import kotlin.reflect.KClass
 
-abstract class EventHandler(vararg types: KClass<out Event>) {
+abstract class EventHandler(
+    vararg types: KClass<out Event>,
+    val priority: EventPriority = EventPriority.NORMAL
+) {
 
     val eventTypes: Set<Class<out Event>> = if (types.isNotEmpty()) {
         types.map { it.java }.toSet()

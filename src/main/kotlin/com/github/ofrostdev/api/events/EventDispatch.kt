@@ -3,7 +3,6 @@ package com.github.ofrostdev.api.events
 import com.github.ofrostdev.api.events.handler.EventHandler
 import org.bukkit.Bukkit
 import org.bukkit.event.Event
-import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
 import java.lang.reflect.Method
@@ -37,7 +36,7 @@ class EventDispatch private constructor(private val plugin: Plugin) : Listener {
                 Bukkit.getPluginManager().registerEvent(
                     eventClass,
                     EMPTY_LISTENER,
-                    EventPriority.NORMAL,
+                    handler.priority,
                     { _, event -> dispatch(event) },
                     plugin
                 )
