@@ -8,8 +8,10 @@ abstract class EventHandler {
 
     val eventPriorities: MutableMap<KClass<out Event>, EventPriority> = mutableMapOf()
 
-    protected fun registerEvent(event: KClass<out Event>, priority: EventPriority = EventPriority.NORMAL) {
-        eventPriorities[event] = priority
+    protected fun registerEvents(vararg events: Pair<KClass<out Event>, EventPriority>) {
+        for ((kClass, priority) in events) {
+            eventPriorities[kClass] = priority
+        }
     }
 
     val eventTypes: Set<Class<out Event>>
